@@ -1,0 +1,95 @@
+probes:
+
+  # Google
+  # https://developers.google.com/speed/public-dns
+  - host: "8.8.8.8"
+    type: icmp-ping
+  - host: "8.8.8.8"
+    type: tcp-ping
+    port: 53
+
+  - host: "8.8.4.4"
+    type: icmp-ping
+  - host: "8.8.4.4"
+    type: tcp-ping
+    port: 53
+
+  # Cloudflare
+  # https://www.cloudflare.com/learning/dns/what-is-1.1.1.1/
+  - host: "1.1.1.1"
+    type: icmp-ping
+  - host: "1.1.1.1"
+    type: tcp-ping
+    port: 53
+
+  - host: "1.0.0.1"
+    type: icmp-ping
+  - host: "1.0.0.1"
+    type: tcp-ping
+    port: 53
+
+  # OpenDNS by Cisco
+  # https://www.opendns.com/
+  - host: "208.67.222.222"
+    type: icmp-ping
+  - host: "208.67.222.222"
+    type: tcp-ping
+    port: 53
+
+  - host: "208.67.220.220"
+    type: icmp-ping
+  - host: "208.67.220.220"
+    type: tcp-ping
+    port: 53
+
+  # Level3 DNS
+  - host: "4.2.2.1"
+    type: icmp-ping
+  - host: "4.2.2.1"
+    type: tcp-ping
+    port: 53
+
+  - host: "4.2.2.2"
+    type: icmp-ping
+  - host: "4.2.2.2"
+    type: tcp-ping
+    port: 53
+
+  # Comodo Secure DNS
+  - host: "8.26.56.26"
+    type: icmp-ping
+  - host: "8.26.56.26"
+    type: tcp-ping
+    port: 53
+
+  - host: "8.20.247.20"
+    type: icmp-ping
+  - host: "8.20.247.20"
+    type: tcp-ping
+    port: 53
+
+  # Suddenlink
+  # various IPs behind rdns01.suddenlink.net, rdns02.suddenlink.net, rdns03..., rdns04...
+  - host: "208.180.42.68"
+    type: icmp-ping
+  - host: "208.180.42.68"
+    type: tcp-ping
+    port: 53
+
+  - host: "208.180.42.100"
+    type: icmp-ping
+  - host: "208.180.42.100"
+    type: tcp-ping
+    port: 53
+
+  - host: "66.76.2.132"
+    type: icmp-ping
+  - host: "66.76.2.132"
+    type: tcp-ping
+    port: 53
+
+  - host: "66.76.2.133"
+    type: icmp-ping
+  - host: "66.76.2.133"
+    type: tcp-ping
+    port: 53
