@@ -1,6 +1,6 @@
 # conn-probe
 
-![docs](docs/dashboard-demo.png)
+![docs](docs/demo.gif)
 
 conn-probe gives you an idea of the performance of your internet connection. By routinely "pinging"
 hosts around the web, conn-probe visualizes:
