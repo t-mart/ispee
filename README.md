@@ -47,7 +47,10 @@ conn-probe supports currently supports two types of probes (or "pings"):
   [TCP 3-step handshake](https://developer.mozilla.org/en-US/docs/Glossary/TCP_handshake).
   No data is otherwise transfered.
 
-You should expect ICMP to be a little bit faster than TCP.
+You can change which type of probe you are viewing in the dashboard with the dropdown box in the
+upper left:
+
+![probe type dropdown](docs/probe-type-dropdown.png)
 
 ## Configuration
 
