@@ -91,6 +91,13 @@ activity? We don't send much data, I promise.
 
 (We're not actually doing DNS lookups with these hosts.)
 
+## Retention
+
+By default, conn-probe's Prometheus server retains data for at most 30 days.
+
+If you wish to change that, update the `storage.tsdb.retention.time` option of the Prometheus
+service in the [docker-compose.yml](docker-compose.yml) file.
+
 ## Development
 
 ### Grafana
