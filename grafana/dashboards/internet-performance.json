@@ -21,8 +21,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 3,
-  "iteration": 1645427927466,
+  "id": 1,
+  "iteration": 1645472820465,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -44,7 +44,7 @@
         "type": "prometheus",
         "uid": "promuid"
       },
-      "description": "Lower is better",
+      "description": "Note the logarithmic scale when interpreting data. \n\nThe yellow line (50ms) and red line (100ms) arbitrarily delineate regions of \"good\", \"okay\", and \"bad\".",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -208,7 +208,7 @@
           "refId": "A"
         }
       ],
-      "title": "Average Current Probe Duration",
+      "title": "Average Last Probe Duration",
       "type": "stat"
     },
     {
@@ -216,7 +216,7 @@
         "type": "prometheus",
         "uid": "promuid"
       },
-      "description": "",
+      "description": "The \"nth percentile is x\" tells you that n/100 percent of the traffic is at or below x. For example, if the 90th percentile is 50ms, then 90% of the traffic is <= 50ms, while the other 10% is > 50ms.\n\nViewing a set of percentiles can illuminate the variance of the underlying measurements.\n\nNote that the the values of the percentiles are typically interpolations instead of actually-recorded values.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -285,10 +285,10 @@
             "uid": "promuid"
           },
           "exemplar": true,
-          "expr": "histogram_quantile(0.75, sum by (le) (rate(probe_duration_seconds_bucket{type=\"$type\"}[$__range])))",
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(probe_duration_seconds_bucket{type=\"$type\"}[$__range])))",
           "hide": false,
           "interval": "",
-          "legendFormat": "75th Percentile",
+          "legendFormat": "90th Percentile",
           "refId": "C"
         },
         {
@@ -316,7 +316,7 @@
           "refId": "E"
         }
       ],
-      "title": "Average Probe Duration Quantiles Over Range",
+      "title": "Average Probe Duration Percentiles Over Range",
       "type": "stat"
     },
     {
@@ -324,7 +324,7 @@
         "type": "prometheus",
         "uid": "promuid"
       },
-      "description": "Lower is better",
+      "description": "This graph is stacked because failure is a binary state, so the lines would overlap if graphed traditionally. Stacking separates the lines.\n\nThis is a rounded value. Fundamentally, prometheus extrapolates count metrics to produce possibly non-integer values. Therefore, the values are rounded for sanity. See https://stackoverflow.com/a/38665996/235992 for more info.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -397,7 +397,8 @@
             "uid": "promuid"
           },
           "exemplar": true,
-          "expr": "increase(probe_failure_total{type=\"$type\"}[$__rate_interval])",
+          "expr": "round(increase(probe_failure_total{type=\"$type\"}[$__rate_interval]))",
+          "instant": false,
           "interval": "",
           "legendFormat": "{{host}}:{{port}}",
           "refId": "A"
@@ -411,7 +412,7 @@
         "type": "prometheus",
         "uid": "promuid"
       },
-      "description": "For each hosts last reading, rate of failure",
+      "description": "This value gives an idea of how many failures occurred in the last reading, averaged.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -431,7 +432,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -467,14 +468,14 @@
             "uid": "promuid"
           },
           "exemplar": false,
-          "expr": "avg(increase(probe_failure_total{type=\"$type\"}[$__rate_interval]))",
+          "expr": "sum(round(increase(probe_failure_total{type=\"$type\"}[$__rate_interval])))/count(increase(probe_total{type=\"$type\"}[$__rate_interval]))",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "Average Current Probe Failures",
+      "title": "Last Probe Failure Rate",
       "type": "stat"
     },
     {
@@ -482,12 +483,12 @@
         "type": "prometheus",
         "uid": "promuid"
       },
-      "description": "",
+      "description": "The failure rate of all probes over the the range of the dashboard.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "red",
-            "mode": "fixed"
+            "fixedColor": "green",
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -496,6 +497,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 1e-13
               }
             ]
           },
@@ -543,7 +548,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "5s",
+  "refresh": false,
   "schemaVersion": 34,
   "style": "dark",
   "tags": [],
@@ -552,8 +557,8 @@
       {
         "current": {
           "selected": true,
-          "text": "tcp-ping",
-          "value": "tcp-ping"
+          "text": "icmp-ping",
+          "value": "icmp-ping"
         },
         "description": "Type of probe to display data for.",
         "hide": 0,
@@ -563,12 +568,12 @@
         "name": "type",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "tcp-ping",
             "value": "tcp-ping"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "icmp-ping",
             "value": "icmp-ping"
           }
@@ -581,8 +586,8 @@
     ]
   },
   "time": {
-    "from": "now-5m",
-    "to": "now"
+    "from": "2022-02-21T20:02:07.041Z",
+    "to": "2022-02-21T21:29:15.310Z"
   },
   "timepicker": {
     "hidden": false,
@@ -614,6 +619,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 20,
+  "version": 6,
   "weekStart": ""
 }
