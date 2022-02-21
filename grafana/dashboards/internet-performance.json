@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645472820465,
+  "iteration": 1645472820685,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -468,7 +468,7 @@
             "uid": "promuid"
           },
           "exemplar": false,
-          "expr": "sum(round(increase(probe_failure_total{type=\"$type\"}[$__rate_interval])))/count(increase(probe_total{type=\"$type\"}[$__rate_interval]))",
+          "expr": "sum(round(increase(probe_failure_total{type=\"$type\"}[$__rate_interval])))/sum(increase(probe_total{type=\"$type\"}[$__rate_interval]))",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -548,7 +548,7 @@
       "type": "stat"
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 34,
   "style": "dark",
   "tags": [],
@@ -586,8 +586,8 @@
     ]
   },
   "time": {
-    "from": "2022-02-21T20:02:07.041Z",
-    "to": "2022-02-21T21:29:15.310Z"
+    "from": "now-15m",
+    "to": "now"
   },
   "timepicker": {
     "hidden": false,
@@ -619,6 +619,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 6,
+  "version": 9,
   "weekStart": ""
 }
