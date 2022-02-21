@@ -9,7 +9,7 @@ hosts around the web, conn-probe visualizes:
 - jitter
 - packet loss/outages
 
-Use this to get a quantitative idea about your connection's latency, so you can complain with
+Use this to get a quantitative idea about your connection, so you can complain with
 confidence to your ISP.
 
 ## Usage
@@ -56,6 +56,9 @@ upper left:
 
 conn-probe requires a configuration file that defines how it runs. A default configuration is
 given at [probes.yml](probes.yml) and this file will be automatically used in the Docker Compose
+application.
+
+Configuration is read once when the application starts. So, to update the configuration, restart the
 application.
 
 The schema for `probes.yml` is demonstrated by this example:
