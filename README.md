@@ -12,10 +12,11 @@ hosts around the web, conn-probe visualizes:
 Use this to get a quantitative idea about your connection, so you can complain with
 confidence to your ISP.
 
-## Usage
+## Quickstart
 
 1. Ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop)
    and [git](https://git-scm.com/downloads) on your system.
+
 2. Clone this repository:
 
    ```shell
@@ -29,15 +30,7 @@ confidence to your ISP.
    docker compose up --detach --build --always-recreate-deps
    ```
 
-   Then, the following servers will be available:
-
-   - Grafana: <http://localhost:3000>
-     - **Dashboard: <http://localhost:3000/d/internet-performance/internet-performance>**
-       (You probably want this one!!)
-   - Prometheus: <http://localhost:9090>
-   - Prober Server: <http://localhost:8000>
-
-   ![architecture](docs/architecture.png)
+4. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>.
 
 ## Probes
 
@@ -107,6 +100,10 @@ If you wish to change that, update the `storage.tsdb.retention.time` option of t
 service in the [docker-compose.yml](docker-compose.yml) file.
 
 ## Development
+
+### Architecture
+
+![architecture](docs/architecture.png)
 
 ### Grafana
 
