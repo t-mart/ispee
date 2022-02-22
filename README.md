@@ -37,6 +37,8 @@ confidence to your ISP.
    - Prometheus: <http://localhost:9090>
    - Prober Server: <http://localhost:8000>
 
+   ![architecture](docs/architecture.png)
+
 ## Probes
 
 conn-probe supports currently supports two types of probes (or "pings"):
