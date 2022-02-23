@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645620034861,
+  "iteration": 1645620335419,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -585,6 +585,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 10,
+  "version": 4,
   "weekStart": ""
 }
