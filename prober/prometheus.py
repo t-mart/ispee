@@ -68,8 +68,8 @@ def record_icmp_ping_probe(host: str) -> None:
         measurement_fn=partial(
             icmp_ping_probe,
             host=host,
-            check_identifier=False,  # strangely, numerous hosts fail these checks
-            check_sequence_number=False,  # probably bad ICMP implementation?
+            # check_identifier=False,  # strangely, numerous hosts fail these checks
+            # check_sequence_number=False,  # probably bad ICMP implementation?
         ),
         type_label="icmp-ping",
         destination_label=f"{host}",
