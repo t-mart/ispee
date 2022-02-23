@@ -1,59 +1,59 @@
 version: "3.9"
 services:
   prober:
+    container_name: prober
     restart: unless-stopped
     build: .
     ports:
       - "8000:8000"
     environment:
      - PYTHONUNBUFFERED=1
+     - COLUMNS=200  # rich's log output defaults to super small 80 otherwise
     volumes:
       - type: bind
         source: ./probes.yml
         target: /etc/prober/probes.yml
         read_only: true
-  prometheus:
+  vmagent:
+    container_name: vmagent
     restart: unless-stopped
-    image: prom/prometheus
+    image: victoriametrics/vmagent
     ports:
-      - "9090:9090"
+      - "8429:8429"
     volumes:
       - type: bind
-        source: ./prometheus/config/prometheus.yml
+        source: ./victoriametrics/config/prometheus.yml
         target: /etc/prometheus/prometheus.yml
         read_only: true
       - type: volume
-        source: prometheus-storage
-        target: /prometheus
+        source: vmagent-storage
+        target: /vmagentdata
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --web.enable-lifecycle
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=30d
-      - --web.console.libraries=/usr/share/prometheus/console_libraries
-      - --web.console.templates=/usr/share/prometheus/consoles
+      - "--promscrape.config=/etc/prometheus/prometheus.yml"
+      - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
     depends_on:
-      - prober
       - victoriametrics
   victoriametrics:
+    container_name: victoriametrics
     restart: unless-stopped
     image: victoriametrics/victoria-metrics
     ports:
-      - 8428:8428
+      - "8428:8428"
     volumes:
       - type: volume
         source: victoriametrics-storage
         target: /storage
     command:
-      - '--storageDataPath=/storage'
-      - '--httpListenAddr=:8428'
+      - "--storageDataPath=/storage"
+      - "--httpListenAddr=:8428"
+      - "--retentionPeriod=1"
   grafana:
+    container_name: grafana
     restart: unless-stopped
     image: grafana/grafana
     ports:
       - "3000:3000"
     depends_on:
-      - prometheus
       - victoriametrics
     volumes:
       - type: bind
@@ -73,5 +73,5 @@ services:
 
 volumes:
   grafana-storage:
-  prometheus-storage:
   victoriametrics-storage:
+  vmagent-storage:
