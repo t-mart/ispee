@@ -1,11 +1,15 @@
 """Prometheus measuring functionality."""
+from __future__ import annotations
+
 from functools import partial
 from typing import Callable
 
+from attrs import define
 from prometheus_client import Counter, Histogram
 
 from prober.console import CONSOLE
 from prober.probe import icmp_ping_probe, tcp_syn_ack_probe
+from prober.exception import ProbeException
 
 LABELS = ["destination", "type"]
 
@@ -26,51 +30,58 @@ PROBE_COUNTER = Counter(
 )
 
 
-def _record(
-    *,
-    measurement_fn: Callable[[], float],
-    type_label: str,
-    destination_label: str,
-) -> None:
-    """
-    Generalized way of running one of the probes and recording it on a metric.
-    """
-    labels = {"type": type_label, "destination": destination_label}
-    try:
-        duration = measurement_fn()
-        PROBE_DURATION_SECONDS_HISTOGRAM.labels(**labels).observe(  # type: ignore
-            duration
+@define
+class MetricJob:
+    """Represents a job that can record how a probe performed."""
+
+    measure_fn: Callable[[], float]
+    type_label: str
+    destination_label: str
+
+    @classmethod
+    def tcp_ping_job(cls, host: str, port: int) -> MetricJob:
+        """Create a TCP ping metric job."""
+        return cls(
+            measure_fn=partial(tcp_syn_ack_probe, host=host, dest_port=port),
+            type_label="tcp-ping",
+            destination_label=f"{host}:{port}",
         )
-        CONSOLE.log(f"probe {labels}: {duration=}")
-    except RuntimeError as run_err:
-        PROBE_FAILURE_COUNTER.labels(**labels).inc()
-        CONSOLE.log(f"probe {labels}: failure because {run_err}")
 
-    PROBE_COUNTER.labels(**labels).inc()
+    @classmethod
+    def icmp_ping_job(cls, host: str) -> MetricJob:
+        """Create a ICMP ping metric job."""
+        return cls(
+            measure_fn=partial(icmp_ping_probe, host=host),
+            type_label="icmp-ping",
+            destination_label=f"{host}",
+        )
 
+    @property
+    def label_dict(self) -> dict[str, str]:
+        """Return a dict of the labels that will be attached to data from this job."""
+        return {"type": self.type_label, "destination": self.destination_label}
 
-def record_tcp_ping_probe(host: str, port: int) -> None:
-    """
-    Fire off a TCP probe against a host and set the prometheus metrics accordingly.
-    """
-    _record(
-        measurement_fn=partial(tcp_syn_ack_probe, host=host, dest_port=port),
-        type_label="tcp-ping",
-        destination_label=f"{host}:{port}",
-    )
+    def record(self) -> None:
+        """
+        Run the probe and record the result (with labels). If it's successful, the time
+        it took is added to the PROBE_DURATION_SECONDS_HISTOGRAM. Otherwise, the
+        PROBE_FAILURE_COUNTER is incremented. And no matter what, PROBE_COUNTER is
+        incremented.
+        """
+        try:
+            duration = self.measure_fn()
+            PROBE_DURATION_SECONDS_HISTOGRAM.labels(  # type: ignore
+                **self.label_dict
+            ).observe(duration)
+            CONSOLE.log(f"probe {self}: {duration=}")
+        except ProbeException as probe_exc:
+            PROBE_FAILURE_COUNTER.labels(**self.label_dict).inc()
+            CONSOLE.log(f"probe {self}: failure because {probe_exc}")
 
+        PROBE_COUNTER.labels(**self.label_dict).inc()
 
-def record_icmp_ping_probe(host: str) -> None:
-    """
-    Fire off an ICMP probe against a host and set the prometheus metrics accordingly.
-    """
-    _record(
-        measurement_fn=partial(
-            icmp_ping_probe,
-            host=host,
-            # check_identifier=False,  # strangely, numerous hosts fail these checks
-            # check_sequence_number=False,  # probably bad ICMP implementation?
-        ),
-        type_label="icmp-ping",
-        destination_label=f"{host}",
-    )
+    def __str__(self) -> str:
+        return str(self.label_dict)
+
+    def __repr__(self) -> str:
+        return str(self)

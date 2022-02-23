@@ -5,8 +5,9 @@ import time
 import click
 from prometheus_client import start_http_server
 
+from prober.config import read_metric_jobs
 from prober.console import CONSOLE
-from prober.config import get_config_probe_record_fns
+from prober.prometheus import MetricJob
 
 HTTP_SERVER_PORT = 8000
 DELAY_INTERVAL_SECONDS = 15
@@ -18,19 +19,21 @@ def main() -> None:
     Expose an HTTP server on port 8000 that publishes connectivity metrics in Prometheus
     format.
     """
-    probe_record_fns = list(get_config_probe_record_fns())
-    CONSOLE.log(f"Found {len(probe_record_fns)} in config file.")
+    metric_jobs: list[MetricJob] = []
+    for metric_job in read_metric_jobs():
+        metric_jobs.append(metric_job)
+        CONSOLE.log("Read job {metric_job} from config file.")
 
-    start_http_server(HTTP_SERVER_PORT)
+    start_http_server(HTTP_SERVER_PORT)  # type: ignore
     CONSOLE.log(
         f"Prometheus metrics exposed on HTTP server with port {HTTP_SERVER_PORT}."
     )
 
     CONSOLE.log(f"Starting record loop on {DELAY_INTERVAL_SECONDS} second interval.")
     while True:
-        for fn in probe_record_fns:
+        for metric_job in metric_jobs:
             thread = threading.Thread(
-                target=fn,
+                target=metric_job.record,
                 daemon=True,
             )
             thread.start()

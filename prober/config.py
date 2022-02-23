@@ -1,21 +1,18 @@
-from collections.abc import Callable, Iterable
-from functools import partial
+"""Configuration reader"""
+from collections.abc import Iterable
 from pathlib import Path
 
 import yaml
 
-from prober.prometheus import record_icmp_ping_probe, record_tcp_ping_probe
+from prober.exception import ConfigSchemaError
+from prober.prometheus import MetricJob
 
 DEFAULT_CONFIG_PATH = Path("/etc/prober/probes.yml")
 
 
-class ConfigSchemaError(Exception):
-    """Indicates that a read file does not match the prescribed schema."""
-
-
-def get_config_probe_record_fns(
+def read_metric_jobs(
     config_path: Path = DEFAULT_CONFIG_PATH,
-) -> Iterable[Callable[[], None]]:
+) -> Iterable[MetricJob]:
     """
     Read the config file at config_path and produce a representative object with very
     basic schema validation.
@@ -32,14 +29,11 @@ def get_config_probe_record_fns(
         if "host" not in probe:
             raise ConfigSchemaError('Could not find key "host"')
 
-        match probe["type"]:
-            case "icmp-ping":
-                yield partial(record_icmp_ping_probe, host=probe["host"])
-            case "tcp-ping":
-                if "port" not in probe:
-                    raise ConfigSchemaError('Could not find key "port"')
-                yield partial(
-                    record_tcp_ping_probe, host=probe["host"], port=int(probe["port"])
-                )
-            case _:
-                raise ConfigSchemaError(f"Unknown type {probe['type']}")
+        if probe["type"] == "icmp-ping":
+            yield MetricJob.icmp_ping_job(host=probe["host"])
+        elif probe["type"] == "tcp-ping":
+            if "port" not in probe:
+                raise ConfigSchemaError('Could not find key "port"')
+            yield MetricJob.tcp_ping_job(host=probe["host"], port=int(probe["port"]))
+        else:
+            raise ConfigSchemaError(f"Unknown type {probe['type']}")

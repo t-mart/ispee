@@ -3,63 +3,78 @@ Probe functionality.
 """
 import random
 import socket
-import time
-from typing import Optional
-from collections.abc import Iterable
-from contextlib import contextmanager
 import struct
+import time
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import Optional
 
 from scapy.layers.inet import ICMP, IP, TCP
+
+from prober.exception import ICMPError, ProbeTimeout, TCPError
+
+# from scapy.layers.inet import UDP
+
 
 DEFAULT_TIMEOUT_SECONDS = 5.0
 
 
-def randint_bits(n_bits: int) -> int:
+def _randint_bits(n_bits: int) -> int:
+    """Return a number from 0 to 2^n_bits -1 inclusive."""
     return random.randint(0, (2**n_bits) - 1)
 
 
-class CumulativeSocketTimeout:
+class SocketTimeoutPool:
     """
-    Facilitates cumulative socket operations against an initial amount of timeout time.
-    For example, if you want a sequence of send()s and recv()s to complete in 5 seconds,
-    you'd use the context manager provided by the settimeout() method and this object
-    will call settimeout on the socket appropriately for each subsequent socket
-    operation.
+    Limits cumulative socket operations to an initial amount/pool of timeout time.
+
+    For example, for an initial pool of 4 seconds:
+
+    sock_time = SocketTimeoutPool()
+    with sock_time.limit(sock):
+        # sock now has timeout of 3 seconds like sock.settimeout(3)
+        sock.send(b"hi")
+        # let's say that took 1.1 seconds to complete
+
+    # then later...
+    with sock_time.limit(sock):
+        # sock now has timeout of 2.9 seconds (4 - 1.1 = 2.9)
+        sock.recv(1024)
 
     Otherwise, you're having to both 1) call socket.settimeout() and 2) measure how much
     time was actually used and decrease that from the next socket.settimeout() call.
     """
 
-    def __init__(self, sock: socket.socket, initial_timeout_seconds: float) -> None:
-        self.sock = sock
-        self.timeout_seconds_left = initial_timeout_seconds
+    def __init__(self, initial_pool_seconds: float) -> None:
+        self.seconds_left = initial_pool_seconds
 
     @contextmanager
-    def settimeout(self) -> Iterable[None]:
+    def limit(self, sock: socket.socket) -> Iterator[None]:
         """
-        Provides a context that does two things:
-        - before entering the context, the socket's timeout to the remaining time left,
-        - on context manager close, deducts the amount of time spent inside the context
-        from the remaining time left.
+        Provides a context that a few things:
+        - Before entering the context, the socket's timeout to the remaining time left.
+          If there is no time left, a ProbeTimeout exception is raised.
+        - Importantly, any TimeoutErrors (from the stdlib) that bubble from the context
+          are transformed to ProbeTimeout exceptions.
+        - After exiting the context, deducts the amount of time spent inside the context
+          from the remaining time left.
 
         Only one blocking socket operation must be attempted inside the context (or else
-        each operation will have an equal amount of time.)
+        the timeout durations will not be correctly set.)
         """
-        if self.expired:
-            raise TimeoutError("No time left")
+        if self.seconds_left <= 0:
+            raise ProbeTimeout("Probe operation timed out")
 
-        self.sock.settimeout(self.timeout_seconds_left)
+        sock.settimeout(self.seconds_left)
 
         start = time.perf_counter()
 
-        yield
+        try:
+            yield
+        except TimeoutError as timeout_error:
+            raise ProbeTimeout("Probe operation timed out") from timeout_error
 
-        self.timeout_seconds_left -= time.perf_counter() - start
-
-    @property
-    def expired(self) -> bool:
-        """Returns False if there's no time left."""
-        return self.timeout_seconds_left <= 0
+        self.seconds_left -= time.perf_counter() - start
 
 
 def icmp_ping_probe(
@@ -70,13 +85,15 @@ def icmp_ping_probe(
 ) -> float:
     """
     Return the time it takes to make a ICMP ping with a given sequence_number and
-    identifier.
+    identifier. In the reply, the sequence_number and identifier are expected to match
+    those from the response. This function will continue to wait for such a response
+    until the timeout has expired.
 
-    In the reply, the sequence_number and identifier are expected to match those from
-    the response and the type and code must be zero. If not, a RuntimeError is raised.
-    However, these checks may be controlled with the check_* parameters.
+    If in the reply, he type and code are non-zero (indicating something different than
+    a normal reply), an ICMPError will be raised.
 
-    Additionally, if the timeout is exceeded while waiting for data, a RuntimeError is
+    An initial total of timeout_seconds are shared among all socket operations. If the
+    timeout is depleted while performing a socket operation, a ProbeTimeout exception is
     raised.
 
     Finally, there are probably additional failure cases that I'm not considering.
@@ -84,15 +101,15 @@ def icmp_ping_probe(
     Requires Linux and root.
     """
     if identifier is None:
-        identifier = randint_bits(16)
+        identifier = _randint_bits(16)
     if sequence_number is None:
-        sequence_number = randint_bits(16)
+        sequence_number = _randint_bits(16)
 
     with socket.socket(
         family=socket.AF_INET, type=socket.SOCK_RAW, proto=socket.IPPROTO_ICMP
     ) as sock:
 
-        cumul_socket_timeout = CumulativeSocketTimeout(sock, timeout_seconds)
+        timeout_pool = SocketTimeoutPool(timeout_seconds)
 
         # type 8, code 0 means icmp echo request
         # for later matching to the right reply, set a custom id and sequence number
@@ -100,7 +117,7 @@ def icmp_ping_probe(
         # set payload to our timer, host will respond with it
         tx_dgram = tx_dgram_header / struct.pack("!d", time.perf_counter())
 
-        with cumul_socket_timeout.settimeout():
+        with timeout_pool.limit(sock):
             # dummy port 0 bc AF_INET requirement of (addr, port) format. icmp is
             # port-less
             sock.sendto(bytes(tx_dgram), (host, 0))
@@ -112,7 +129,7 @@ def icmp_ping_probe(
             # i'm not really sure what recv returns... can we guarantee it's a complete
             # packet? testing indicates as much. also, must the buffer size be a certain
             # size? 2048 should more than enough for our ICMP, so crossing fingers
-            with cumul_socket_timeout.settimeout():
+            with timeout_pool.limit(sock):
                 rx_packet_bytes = sock.recv(2048)
 
             # record time now, do processing later
@@ -141,7 +158,7 @@ def icmp_ping_probe(
                 return dgram_recv_time - dgram_send_time
 
             # otherwise, probably something like destination unreachable or ttl exceed
-            raise RuntimeError(
+            raise ICMPError(
                 f"In ICMP reply, got type={rx_dgram.type} and code={rx_dgram.code}"
             )
 
@@ -149,21 +166,19 @@ def icmp_ping_probe(
 def tcp_syn_ack_probe(
     host: str,
     dest_port: int,
-    src_port: Optional[int] = None,
     sequence_number: Optional[int] = None,
     acknowledgment_number: Optional[int] = None,
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
 ) -> float:
     """
-    Return the time it takes to make a "TCP SYN" ping.
+    Return the time it takes to make a "TCP SYN" ping. This sends a TCP SYN segment to a
+    host on a destination port and awaits either a SYN-ACK response with the properly
+    updated sequence and acknowledgement numbers or the expiration of the timeout.
 
-    This sends a TCP SYN segment to a host with a source and destination port and awaits
-    a SYN-ACK response. If the src_port is None, one is chosen at random.
+    In the response, if the flags are not equal to SYN-ACK, a TCPError is raised.
 
-    In the response, if the flags are not equal to SYN-ACk, a RuntimeError is raised.
-    However, this check may be controlled with the check_flags parameter.
-
-    Additionally, if the timeout is exceeded while waiting for data, a RuntimeError is
+    An initial total of timeout_seconds are shared among all socket operations. If the
+    timeout is depleted while performing a socket operation, a ProbeTimeout exception is
     raised.
 
     Finally, there are probably additional failure cases that I'm not considering.
@@ -175,12 +190,10 @@ def tcp_syn_ack_probe(
 
     Requires Linux and root.
     """
-    if src_port is None:
-        src_port = randint_bits(16)
     if sequence_number is None:
-        sequence_number = randint_bits(32)
+        sequence_number = _randint_bits(32)
     if acknowledgment_number is None:
-        acknowledgment_number = randint_bits(32)
+        acknowledgment_number = _randint_bits(32)
 
     with socket.socket(
         family=socket.AF_INET, type=socket.SOCK_RAW, proto=socket.IPPROTO_TCP
@@ -188,14 +201,13 @@ def tcp_syn_ack_probe(
 
         # provide IP packet too. see IP_HDRINCL note below for reasoning
         tx_packet = IP(dst=host) / TCP(
-            sport=src_port,
             dport=dest_port,
             flags="S",
             seq=sequence_number,
             ack=acknowledgment_number,
         )
 
-        cumul_socket_timeout = CumulativeSocketTimeout(sock, timeout_seconds)
+        timeout_pool = SocketTimeoutPool(timeout_seconds)
 
         # tell the kernel that we will provide the network-level (IP protocol) header.
         # this might not be needed (ICMP doesn't need it for some reason), but more
@@ -205,12 +217,12 @@ def tcp_syn_ack_probe(
 
         tx_time = time.perf_counter()
 
-        with cumul_socket_timeout.settimeout():
+        with timeout_pool.limit(sock):
             sock.sendto(bytes(tx_packet), (host, dest_port))
 
         while True:
 
-            with cumul_socket_timeout.settimeout():
+            with timeout_pool.limit(sock):
                 rx_packet_bytes = sock.recv(2048)
 
             # record time now, do processing later
@@ -232,49 +244,82 @@ def tcp_syn_ack_probe(
             # server swaps seq and ack with ack and seq+1
             exp_seq = acknowledgment_number
             exp_ack = (sequence_number + 1) % (2**32)
-            if (
-                rx_dgram.seq != exp_seq
-                and rx_dgram.ack != exp_ack
-            ):
+            if rx_dgram.seq != exp_seq and rx_dgram.ack != exp_ack:
                 continue
 
             # server should be SYN-ACKing back
             if rx_dgram.flags == "SA":
                 return rx_time - tx_time
 
-            # prolly an issue if server isn't doing that
-            raise RuntimeError(
+            # prolly an issue if server isn't SYN-ACKing
+            raise TCPError(
                 f"host did not respond with correct flags "
                 f"(expected: SYN-ACK, actual: {rx_dgram.flags})"
             )
 
 
-# this isn't quite working for some reason
-# there's is idea of a UDP ping where you send a UDP datagran to a closed remote port,
-# and instead of receiving some kind of UDP response, you get a ICMP type 3 (destination
-# unreachable), code 3 (port unreachable error). I guess I'm not sure how to open a
-# socket with both socket.IPPROTO_UDP to send and socket.IPPROTO_ICMP to receive? shrug
+# NOTE: THIS CODE DOES NOT WORK. I see the response ICMP datagram in wireshark,
+# but can't access it in code for some reason. I am keeping it in source code for
+# posterity.
 # def udp_probe(
 #     host: str,
 #     dest_port: int,
 #     src_port: Optional[int] = None,
-#     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+#     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
 # ) -> float:
 #     """
-#     Return the time it takes to make a "UDP" ping.
+#     Return the time it takes to make a "UDP" ping. By sending a UDP datagram to a host
+#     on port 0, you can illicit an ICMP port unreachable reply (code=3, type=3).
+
+#     NOTE: Many hosts will not respond to this type of ping.
 #     """
-#     HOST = "192.168.1.151"
-#
-#     tx_datagram = IP(dst=HOST)/UDP(dport=0, sport=1234)
+#     if src_port is None:
+#         src_port = _randint_bits(16)
+
 #     with socket.socket(
 #         family=socket.AF_INET, type=socket.SOCK_RAW, proto=socket.IPPROTO_UDP
 #     ) as sock:
-#         sock.settimeout(5)
-#         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
-#         print(f"sending {bytes(tx_datagram)}")
-#         sock.sendto(bytes(tx_datagram), (HOST, 0))
 
-#         recv = sock.recv(128)
-#         print(recv)
-#         rx_datagram = IP(_pkt=recv)
-#         rx_datagram.show()
+#         tx_packet = IP(dst=host) / UDP(
+#             sport=src_port,
+#             dport=dest_port,
+#         )
+
+#         cumul_socket_timeout = CumulativeSocketTimeout(sock, timeout_seconds)
+
+#         # tell the kernel that we will provide the network-level (IP protocol) header.
+#         # this might not be needed (ICMP doesn't need it for some reason), but more
+#         # because I can't figure out how to get it work without it: unless this is
+#         #set, we don't seem to get any data back in our recv() calls.
+#         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+
+#         tx_time = time.perf_counter()
+
+#         with cumul_socket_timeout.settimeout():
+#             sock.sendto(bytes(tx_packet), (host, dest_port))
+
+#         while True:
+
+#             with cumul_socket_timeout.settimeout():
+#                 rx_packet_bytes = sock.recv(2048)
+
+#             # record time now, do processing later
+#             rx_time = time.perf_counter()
+
+#             rx_packet = IP(_pkt=rx_packet_bytes)
+
+#             # ensure we're not receiving some other protocol, else the decoding below
+#             # will fail. (note: is this even possible?)
+#             if rx_packet.proto != socket.IPPROTO_ICMP:
+#                 continue
+
+#             # ensure source is correct
+#             if rx_packet.src != host:
+#                 continue
+
+#             rx_dgram: ICMP = rx_packet.payload
+
+#             if rx_dgram.type == 3 and rx_dgram.code == 3:
+#                 return rx_time - tx_time
+#             else:
+#                 continue
