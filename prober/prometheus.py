@@ -7,7 +7,7 @@ from prometheus_client import Counter, Histogram
 from prober.console import CONSOLE
 from prober.probe import icmp_ping_probe, tcp_syn_ack_probe
 
-LABELS = ["host", "port", "type"]
+LABELS = ["destination", "type"]
 
 PROBE_DURATION_SECONDS_HISTOGRAM = Histogram(  # type: ignore
     "probe_duration_seconds",
@@ -30,13 +30,12 @@ def _record(
     *,
     measurement_fn: Callable[[], float],
     type_label: str,
-    host_label: str,
-    port_label: str,
+    destination_label: str,
 ) -> None:
     """
     Generalized way of running one of the probes and recording it on a metric.
     """
-    labels = {"type": type_label, "host": host_label, "port": port_label}
+    labels = {"type": type_label, "destination": destination_label}
     try:
         duration = measurement_fn()
         PROBE_DURATION_SECONDS_HISTOGRAM.labels(**labels).observe(  # type: ignore
@@ -57,8 +56,7 @@ def record_tcp_ping_probe(host: str, port: int) -> None:
     _record(
         measurement_fn=partial(tcp_syn_ack_probe, host=host, dest_port=port),
         type_label="tcp-ping",
-        host_label=host,
-        port_label=str(port),
+        destination_label=f"{host}:{port}",
     )
 
 
@@ -74,6 +72,5 @@ def record_icmp_ping_probe(host: str) -> None:
             check_sequence_number=False,  # probably bad ICMP implementation?
         ),
         type_label="icmp-ping",
-        host_label=host,
-        port_label="none",
+        destination_label=f"{host}",
     )

@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645472820685,
+  "iteration": 1645573951472,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -130,7 +130,7 @@
           "exemplar": true,
           "expr": "irate(probe_duration_seconds_sum{type=\"$type\"}[$__rate_interval])/irate(probe_duration_seconds_count{type=\"$type\"}[$__rate_interval])",
           "interval": "",
-          "legendFormat": "{{host}}:{{port}}",
+          "legendFormat": "{{destination}}",
           "refId": "A"
         }
       ],
@@ -322,7 +322,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "promuid"
+        "uid": "lxHfYBB7k"
       },
       "description": "This graph is stacked because failure is a binary state, so the lines would overlap if graphed traditionally. Stacking separates the lines.\n\nThis is a rounded value. Fundamentally, prometheus extrapolates count metrics to produce possibly non-integer values. Therefore, the values are rounded for sanity. See https://stackoverflow.com/a/38665996/235992 for more info.",
       "fieldConfig": {
@@ -378,7 +378,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 48,
+      "id": 56,
       "options": {
         "legend": {
           "calcs": [],
@@ -394,17 +394,17 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "promuid"
+            "uid": "lxHfYBB7k"
           },
           "exemplar": true,
-          "expr": "round(increase(probe_failure_total{type=\"$type\"}[$__rate_interval]))",
+          "expr": "increase(probe_failure_total{type=\"$type\"}[$__interval])",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{host}}:{{port}}",
+          "legendFormat": "{{destination}}",
           "refId": "A"
         }
       ],
-      "title": "Probe Failures (stacked)",
+      "title": "Probe Failures (stacked), VictoriaMetrics",
       "type": "timeseries"
     },
     {
@@ -619,6 +619,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 9,
+  "version": 12,
   "weekStart": ""
 }
