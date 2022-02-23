@@ -9,3 +9,6 @@ scrape_configs:
   - job_name: "connection_prober"
     static_configs:
       - targets: ["prober:8000"]
+
+remote_write:
+  - url: http://victoriametrics:8428/api/v1/write

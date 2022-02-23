@@ -34,6 +34,19 @@ services:
       - --web.console.templates=/usr/share/prometheus/consoles
     depends_on:
       - prober
+      - victoriametrics
+  victoriametrics:
+    restart: unless-stopped
+    image: victoriametrics/victoria-metrics
+    ports:
+      - 8428:8428
+    volumes:
+      - type: volume
+        source: victoriametrics-storage
+        target: /storage
+    command:
+      - '--storageDataPath=/storage'
+      - '--httpListenAddr=:8428'
   grafana:
     restart: unless-stopped
     image: grafana/grafana
@@ -41,6 +54,7 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+      - victoriametrics
     volumes:
       - type: bind
         source: ./grafana/config/grafana.ini
@@ -60,3 +74,4 @@ services:
 volumes:
   grafana-storage:
   prometheus-storage:
+  victoriametrics-storage:
