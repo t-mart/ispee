@@ -2,8 +2,9 @@
 
 ![docs](docs/demo.gif)
 
-conn-probe visualizes the performance of your internet connection by routinely pinging
-hosts around the web. That way, you can see things like:
+conn-probe shows you the performance of your internet connection by routinely pinging
+hosts around the web, storing the results, and finally visualizing that data on a graphing
+dashboard. That way, you can see things like:
 
 - latency (how long it takes for a packet to arrive somewhere and another to come back)
 - jitter (the variance of latency)
@@ -39,8 +40,8 @@ confidence to your ISP.
 ## Probes
 
 Probes are what I'm calling the way that you can measure your connection. (You may also think of
-them as "pings".) Simply put, their little pieces of network code that return how long they took
-and/or if a failure/timeout was experienced.
+them as "pings".) Simply put, they're little pieces of code that return the number of seconds they
+take to perform some networking task or if a failure/timeout was experienced.
 
 conn-probe fires off probes every **15 seconds**.
 
@@ -59,11 +60,10 @@ upper left:
 
 ## Configuration
 
-The conn-probe configuration file defines how it run. A default configuration is given at
+The conn-probe configuration file defines how it runs. A default configuration is given at
 [probes.yml](probes.yml) and this file will be automatically used in the Docker Compose application.
 
-Configuration is read once when the application starts. So, to update the configuration, restart the
-application.
+Configuration is read once when the application starts. So, to update the configuration, restart it.
 
 The schema for `probes.yml` is demonstrated by this example:
 
@@ -97,7 +97,8 @@ should be used that fit the following criteria:
 - They should be addressable by IP so that we don't incur any DNS lookup costs in our probes.
 
 A good candidate set that fulfills these criteria are, in my opinion, DNS providers. Therefore, the
-default configuration is preloaded with a set of them.
+default configuration is preloaded with a set of them (along with comments explaining what they
+are).
 
 ## Retention
 
@@ -106,6 +107,9 @@ By default, conn-probe's VictoriaMetrics (Prometheus) server retains data for at
 If you wish to change that, update the `-retentionPeriod` option of the VictoriaMetrics
 service in the [docker-compose.yml](docker-compose.yml) file. See
 <https://docs.victoriametrics.com/?highlight=retention#retention> for more details.
+
+Also, do note that the metrics data is stored in a Docker volume, allowing you to start/stop and
+recreate the containers without data loss.
 
 ## Backing Up and Restoring Metrics Data
 
