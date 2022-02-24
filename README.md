@@ -94,10 +94,18 @@ activity? We don't send much data, I promise.
 
 ## Retention
 
-By default, conn-probe's Prometheus server retains data for at most 30 days.
+By default, conn-probe's VictoriaMetrics (Prometheus) server retains data for at most 30 days.
 
-If you wish to change that, update the `storage.tsdb.retention.time` option of the Prometheus
-service in the [docker-compose.yml](docker-compose.yml) file.
+If you wish to change that, update the `-retentionPeriod` option of the VictoriaMetrics
+service in the [docker-compose.yml](docker-compose.yml) file. See
+<https://docs.victoriametrics.com/?highlight=retention#retention> for more details.
+
+## Backing Up and Restoring Metrics
+
+- To backup metrics, run `make backup-metrics` and a new file `metrics.tar.gz` will be created in
+  the project root directory.
+- To restore metrics, run `make restore-metrics`, which will restore from `metrics.tar.gz` in the
+  project root directory.
 
 ## Development
 

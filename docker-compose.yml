@@ -14,6 +14,8 @@ services:
         source: ./probes.yml
         target: /etc/prober/probes.yml
         read_only: true
+    networks:
+      - conn-probe-network
   vmagent:
     container_name: vmagent
     restart: unless-stopped
@@ -33,6 +35,8 @@ services:
       - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
     depends_on:
       - victoriametrics
+    networks:
+      - conn-probe-network
   victoriametrics:
     container_name: victoriametrics
     restart: unless-stopped
@@ -47,6 +51,8 @@ services:
       - "--storageDataPath=/storage"
       - "--httpListenAddr=:8428"
       - "--retentionPeriod=1"
+    networks:
+      - conn-probe-network
   grafana:
     container_name: grafana
     restart: unless-stopped
@@ -70,8 +76,14 @@ services:
       - type: volume
         source: grafana-storage
         target: /var/lib/grafana
+    networks:
+      - conn-probe-network
 
 volumes:
   grafana-storage:
   victoriametrics-storage:
   vmagent-storage:
+
+networks:
+  conn-probe-network:
+    name: conn-probe-network

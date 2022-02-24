@@ -37,3 +37,26 @@ rebuild: down up
 .PHONY: export-grafana
 export-grafana:
 	http localhost:3000/api/dashboards/uid/internet-performance | jq ".dashboard" > ./grafana/dashboards/internet-performance.json
+
+.PHONY: backup-metrics
+backup-metrics:
+	docker run \
+	  --rm \
+	  -it \
+	  --network conn-probe-network \
+	  --mount "type=volume,src=conn-probe_victoriametrics-storage,dst=/storage,readonly" \
+	  --mount "type=bind,src=${CURDIR},dst=/host" \
+	  --entrypoint "sh" \
+	  victoriametrics/vmbackup \
+	  	/host/backup-restore/backup-metrics.sh
+
+.PHONY: archive-metrics
+restore-metrics: down
+	docker run \
+	  --rm \
+	  -it \
+	  --mount "type=volume,src=conn-probe_victoriametrics-storage,dst=/storage" \
+	  --mount "type=bind,src=${CURDIR},dst=/host" \
+	  --entrypoint "sh" \
+	  victoriametrics/vmrestore \
+	  	/host/backup-restore/restore-metrics.sh
