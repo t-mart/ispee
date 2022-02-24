@@ -98,11 +98,11 @@ services:
 
 volumes:
   grafana-storage:
-    name: conn-probe-grafana
+    name: conn-probe-grafana-storage
   victoriametrics-storage:
-    name: conn-probe-victoriametrics
+    name: conn-probe-victoriametrics-storage
   vmagent-storage:
-    name: conn-probe-vmagent
+    name: conn-probe-vmagent-storage
 
 networks:
   conn-probe-network:
