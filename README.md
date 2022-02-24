@@ -2,12 +2,12 @@
 
 ![docs](docs/demo.gif)
 
-conn-probe gives you an idea of the performance of your internet connection. By routinely "pinging"
-hosts around the web, conn-probe visualizes:
+conn-probe visualizes the performance of your internet connection by routinely pinging
+hosts around the web. That way, you can see things like:
 
-- latency
-- jitter
-- packet loss/outages
+- latency (how long it takes for a packet to arrive somewhere and another to come back)
+- jitter (the variance of latency)
+- packet loss/outages (expected packets that never arrive)
 
 Use this to get a quantitative idea about your connection, so you can complain with
 confidence to your ISP.
@@ -32,9 +32,19 @@ confidence to your ISP.
 
 4. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>.
 
+   The dashboard may initially show "No Data" because the first metrics are making their way to
+   Grafana. Just wait and/or reload the page. "No Data" may continue to show for the Failure graphs,
+   which is a good thing because you haven't experienced any yet!
+
 ## Probes
 
-conn-probe supports currently supports two types of probes (or "pings"):
+Probes are what I'm calling the way that you can measure your connection. (You may also think of
+them as "pings".) Simply put, their little pieces of network code that return how long they took
+and/or if a failure/timeout was experienced.
+
+conn-probe fires off probes every **15 seconds**.
+
+conn-probe supports currently supports two types of probes:
 
 - ICMP ping probes (`icmp-ping`) measure how long it takes for a host to reply to an ICMP request.
 - TCP ping probes (`tcp-ping`) measure how long it takes for a host to reply to a `SYN` TCP packet
@@ -49,9 +59,8 @@ upper left:
 
 ## Configuration
 
-conn-probe requires a configuration file that defines how it runs. A default configuration is
-given at [probes.yml](probes.yml) and this file will be automatically used in the Docker Compose
-application.
+The conn-probe configuration file defines how it run. A default configuration is given at
+[probes.yml](probes.yml) and this file will be automatically used in the Docker Compose application.
 
 Configuration is read once when the application starts. So, to update the configuration, restart the
 application.
@@ -80,17 +89,15 @@ error message or may just barf.
 
 ### Default Configuration
 
-The default configuration file is preloaded a set of DNS providers for both ICMP and TCP pings.
+To get an idea of the general performance of your internet connection, a wide variety of hosts
+should be used that fit the following criteria:
 
-DNS providers are good for 2 reasons:
+- They should be generally accessible (not behind firewalls, in private IP space, etc)
+- They should respond to the types of probes we are interested in issuing, such as ICMP or TCP
+- They should be addressable by IP so that we don't incur any DNS lookup costs in our probes.
 
-1. These hosts are designed to be addressed by IP, so we don't need to do a DNS resolution, which
-would inflate the measurements potentially.
-2. These services are designed for general public use. So, they, uhm, can handle this kind of
-activity? We don't send much data, I promise.
-3. They have a TCP port open that we know about, port 53, so we can `tcp-ping`.
-
-(We're not actually doing DNS lookups with these hosts.)
+A good candidate set that fulfills these criteria are, in my opinion, DNS providers. Therefore, the
+default configuration is preloaded with a set of them.
 
 ## Retention
 
@@ -100,7 +107,7 @@ If you wish to change that, update the `-retentionPeriod` option of the Victoria
 service in the [docker-compose.yml](docker-compose.yml) file. See
 <https://docs.victoriametrics.com/?highlight=retention#retention> for more details.
 
-## Backing Up and Restoring Metrics
+## Backing Up and Restoring Metrics Data
 
 - To backup metrics, run `make backup-metrics` and a new file `metrics.tar.gz` will be created in
   the project root directory.
@@ -116,4 +123,4 @@ service in the [docker-compose.yml](docker-compose.yml) file. See
 ### Grafana
 
 The Grafana dashboard should be periodically exported with `make export-grafana` and
-committed. Requires `httpie` and `jq`.
+committed. Requires `curl` and `jq`.
