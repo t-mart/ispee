@@ -44,7 +44,7 @@ backup-metrics:
 	  --rm \
 	  -it \
 	  --network conn-probe-network \
-	  --mount "type=volume,src=conn-probe_victoriametrics-storage,dst=/storage,readonly" \
+	  --mount "type=volume,src=conn-probe-victoriametrics,dst=/storage,readonly" \
 	  --mount "type=bind,src=${CURDIR},dst=/host" \
 	  --entrypoint "sh" \
 	  victoriametrics/vmbackup \
@@ -55,7 +55,7 @@ restore-metrics: down
 	docker run \
 	  --rm \
 	  -it \
-	  --mount "type=volume,src=conn-probe_victoriametrics-storage,dst=/storage" \
+	  --mount "type=volume,src=conn-probe-victoriametrics,dst=/storage" \
 	  --mount "type=bind,src=${CURDIR},dst=/host" \
 	  --entrypoint "sh" \
 	  victoriametrics/vmrestore \
