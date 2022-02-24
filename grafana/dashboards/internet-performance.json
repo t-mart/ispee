@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645665043623,
+  "iteration": 1645685335193,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -227,7 +227,8 @@
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 2,
+              "type": "log"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -649,7 +650,7 @@
         "name": "minstep",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "15s",
             "value": "15s"
           },
@@ -669,7 +670,7 @@
             "value": "5m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "15m",
             "value": "15m"
           },
@@ -745,6 +746,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 15,
+  "version": 17,
   "weekStart": ""
 }
