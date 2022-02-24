@@ -5,7 +5,9 @@ services:
   prober:
     container_name: prober
     restart: unless-stopped
-    build: .
+    build:
+      context: .
+    image: prober
     ports:
       - target: 8000
         published: 8000
