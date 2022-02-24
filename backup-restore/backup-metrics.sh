@@ -6,7 +6,7 @@
 #   - note the host mount at /host
 #   - note we're in the conn-probe-network network, so we can access the victoriametrics HTTP snapshot API
 
-# the out-of-the-box behavior is vmbackup is to dump the backup into the dst directory
+# the out-of-the-box behavior is vmbackup is to dump the backup into the -dst directory.
 # this command builds on that by tar-ing the directory, and then nicely placing it on the host
 
 mkdir /backup
