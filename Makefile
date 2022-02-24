@@ -36,7 +36,7 @@ rebuild: down up
 
 .PHONY: export-grafana
 export-grafana:
-	http localhost:3000/api/dashboards/uid/internet-performance | jq ".dashboard" > ./grafana/dashboards/internet-performance.json
+	curl localhost:3000/api/dashboards/uid/internet-performance | jq ".dashboard" > ./grafana/dashboards/internet-performance.json
 
 .PHONY: backup-metrics
 backup-metrics:
