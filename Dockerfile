@@ -20,9 +20,9 @@ RUN set -ex \
     # cached. otherwise, you're having to reinstall all dependencies again for a simple code change.
     #
     # imo, this is a considerable deficieny in pyproject.toml/poetry over requirement.txt files,
-    # which do not a module to exist before installation dependencies. additionally, pyproject.toml
-    # only contains a "symbolic" representation of a dependency, while poetry.lock contains discrete
-    # version-pinned/hashed depenedencies, so there could be differences.
+    # which do not require a module to exist before installation dependencies. additionally,
+    # pyproject.toml only contains a "symbolic" representation of a dependency, while poetry.lock
+    # contains discrete version-pinned/hashed depenedencies, so there could be differences.
     && mkdir /app/prober \
     && touch /app/prober/__init__.py \
     && pip install /app --use-feature=in-tree-build

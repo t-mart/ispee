@@ -49,7 +49,8 @@ conn-probe supports currently supports two types of probes:
 
 - ICMP ping probes (`icmp-ping`) measure how long it takes for a host to reply to an ICMP request.
 - TCP ping probes (`tcp-ping`) measure how long it takes for a host to reply to a `SYN` TCP packet
-  on a particular port with a `SYN-ACK` response. These are the first two steps of the
+  on a particular port with a response, usually a `SYN-ACK`, but any response indicates liveness.
+  These are the first two steps of the
   [TCP 3-step handshake](https://developer.mozilla.org/en-US/docs/Glossary/TCP_handshake).
   No data is otherwise transfered.
 

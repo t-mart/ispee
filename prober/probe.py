@@ -3,7 +3,6 @@ Probe functionality.
 """
 
 # TODO: check checksums? with scapy?
-# TODO: remove tcp syn-ack check because any response indicates it's ok
 # TODO: try again with scapy send and recv?
 
 import random
@@ -16,7 +15,7 @@ from typing import Optional
 
 from scapy.layers.inet import ICMP, IP, TCP
 
-from prober.exception import ICMPError, ProbeTimeout, TCPError
+from prober.exception import ICMPError, ProbeTimeout
 
 # from scapy.layers.inet import UDP
 
@@ -202,8 +201,6 @@ def tcp_syn_ack_probe(
     host on a destination port and awaits either a SYN-ACK response with the properly
     updated sequence and acknowledgement numbers or the expiration of the timeout.
 
-    In the response, if the flags are not equal to SYN-ACK, a TCPError is raised.
-
     An initial total of timeout_seconds are shared among all socket operations. If the
     timeout is depleted while performing a socket operation, a ProbeTimeout exception is
     raised.
@@ -276,15 +273,7 @@ def tcp_syn_ack_probe(
             if rx_dgram.seq != exp_seq and rx_dgram.ack != exp_ack:
                 continue
 
-            # server should be SYN-ACKing back
-            if rx_dgram.flags == "SA":
-                return rx_time - tx_time
-
-            # prolly an issue if server isn't SYN-ACKing
-            raise TCPError(
-                f"host did not respond with correct flags "
-                f"(expected: SYN-ACK, actual: {rx_dgram.flags})"
-            )
+            return rx_time - tx_time
 
 
 # NOTE: THIS CODE DOES NOT WORK. I see the response ICMP datagram in wireshark,
