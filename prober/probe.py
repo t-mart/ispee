@@ -193,13 +193,12 @@ def tcp_syn_ack_probe(
     host: str,
     dest_port: int,
     sequence_number: Optional[int] = None,
-    acknowledgment_number: Optional[int] = None,
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
 ) -> float:
     """
     Return the time it takes to make a "TCP SYN" ping. This sends a TCP SYN segment to a
-    host on a destination port and awaits either a SYN-ACK response with the properly
-    updated sequence and acknowledgement numbers or the expiration of the timeout.
+    host on a destination port and awaits either 1) a SYN-ACK response with a matching
+    sequence number or 2) the expiration of the timeout.
 
     An initial total of timeout_seconds are shared among all socket operations. If the
     timeout is depleted while performing a socket operation, a ProbeTimeout exception is
@@ -214,12 +213,10 @@ def tcp_syn_ack_probe(
     - http://www.networksorcery.com/enp/protocol/ip.htm
     - https://www.binarytides.com/python-syn-flood-program-raw-sockets-linux/
     - https://scapy.readthedocs.io/en/latest/usage.html#tcp-ping
-    - https://docs.microsoft.com/en-us/windows/win32/winsock/tcp-ip-raw-sockets-2
+    - https://man7.org/linux/man-pages/man7/raw.7.html
     """
     if sequence_number is None:
         sequence_number = _randint_bits(32)
-    if acknowledgment_number is None:
-        acknowledgment_number = _randint_bits(32)
 
     with socket.socket(
         family=socket.AF_INET, type=socket.SOCK_RAW, proto=socket.IPPROTO_TCP
@@ -230,13 +227,12 @@ def tcp_syn_ack_probe(
             dport=dest_port,
             flags="S",
             seq=sequence_number,
-            ack=acknowledgment_number,
         )
 
         timeout_pool = SocketTimeoutPool(timeout_seconds)
 
         # tell the kernel that we will provide the network-level (IP protocol) header.
-        # this might not be needed (ICMP doesn't need it for some reason), but more
+        # this might not be needed (ICMP doesn't need it for some reason), but is used
         # because I can't figure out how to get it work without it: unless this is set,
         # we don't seem to get any data back in our recv() calls.
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
@@ -244,7 +240,9 @@ def tcp_syn_ack_probe(
         tx_time = time.perf_counter()
 
         with timeout_pool.limit(sock):
-            sock.sendto(bytes(tx_packet), (host, dest_port))
+            # port "should be always set to 0" with raw sockets on linux
+            # https://man7.org/linux/man-pages/man7/raw.7.html
+            sock.sendto(bytes(tx_packet), (host, 0))
 
         while True:
 
@@ -267,10 +265,9 @@ def tcp_syn_ack_probe(
 
             rx_dgram: TCP = rx_packet.payload
 
-            # server swaps seq and ack with ack and seq+1
-            exp_seq = acknowledgment_number
+            # server replies with ack = (our seq + 1)
             exp_ack = (sequence_number + 1) % (2**32)
-            if rx_dgram.seq != exp_seq and rx_dgram.ack != exp_ack:
+            if rx_dgram.ack != exp_ack:
                 continue
 
             return rx_time - tx_time
