@@ -1,6 +1,11 @@
 """
 Probe functionality.
 """
+
+# TODO: check checksums? with scapy?
+# TODO: remove tcp syn-ack check because any response indicates it's ok
+# TODO: try again with scapy send and recv?
+
 import random
 import socket
 import struct
@@ -26,23 +31,39 @@ def _randint_bits(n_bits: int) -> int:
 
 class SocketTimeoutPool:
     """
-    Limits cumulative socket operations to an initial amount/pool of timeout time.
+    Limits cumulative socket operations to an initial amount/pool of timeout time for
+    socket operations performed inside limit() contexts. It is imperative that the
+    context is only used for a single socket.send*/socket.recv* call for the best
+    precision -- no other code should be inside the context.
 
-    For example, for an initial pool of 4 seconds:
+    For example, for an initial pool of 5 seconds:
 
-    sock_time = SocketTimeoutPool()
-    with sock_time.limit(sock):
-        # sock now has timeout of 3 seconds like sock.settimeout(3)
-        sock.send(b"hi")
-        # let's say that took 1.1 seconds to complete
+        sock_time = SocketTimeoutPool(initial_pool_seconds=5)
+        with sock_time.limit(sock):
+            # limit() function has set timeout to 5 seconds (sock.settimeout(5))
+            sock.send(b"hi")
 
-    # then later...
-    with sock_time.limit(sock):
-        # sock now has timeout of 2.9 seconds (4 - 1.1 = 2.9)
-        sock.recv(1024)
+        # ^ let's say that took 1.5 seconds to complete ^
+
+        # then later...
+        with sock_time.limit(sock):
+            # sock now has timeout of 3.5 seconds (5 - 1.5 = 3.5)
+            sock.recv(1024)
+
+        # and so on...
 
     Otherwise, you're having to both 1) call socket.settimeout() and 2) measure how much
     time was actually used and decrease that from the next socket.settimeout() call.
+
+    While this time tracking is more convenient, do note that SocketTimeoutPool
+    conflates time-in-context with time-waiting-for-socket. But they are not the same
+    thing. For example, the bit of time Python spends entering and exiting the context
+    will decrease from the timeout pool. In other words, the time tracking will not be
+    precise, but should be close enough.
+
+    The rationale for class is abstraction. At a high level, you can promise your caller
+    that "this function will take at most n seconds", more or less, even though the
+    underlying socket calls will have different timeouts set.
     """
 
     def __init__(self, initial_pool_seconds: float) -> None:
@@ -85,20 +106,26 @@ def icmp_ping_probe(
 ) -> float:
     """
     Return the time it takes to make a ICMP ping with a given sequence_number and
-    identifier. In the reply, the sequence_number and identifier are expected to match
-    those from the response. This function will continue to wait for such a response
-    until the timeout has expired.
+    identifier.
 
-    If in the reply, he type and code are non-zero (indicating something different than
-    a normal reply), an ICMPError will be raised.
+    In the reply, the sequence_number and identifier are expected to match those from
+    the response. This function will continue to wait for such a response until the
+    timeout has expired, at which a ProbeTimeout exception will be raised. If the
+    sequence_number and identifier do match a reply but the type and code are non-zero,
+    an ICMPError will be raised (this indicates problems were encountered talking to the
+    host).
 
-    An initial total of timeout_seconds are shared among all socket operations. If the
-    timeout is depleted while performing a socket operation, a ProbeTimeout exception is
-    raised.
-
-    Finally, there are probably additional failure cases that I'm not considering.
+    Finally, there are probably additional failure cases that I'm not considering, so
+    this behavior should not be considered authoritative.
 
     Requires Linux and root.
+
+    References:
+    - http://www.networksorcery.com/enp/protocol/icmp.htm
+    - http://www.networksorcery.com/enp/protocol/ip.htm
+    - https://www.binarytides.com/python-syn-flood-program-raw-sockets-linux/
+    - https://scapy.readthedocs.io/en/latest/usage.html#tcp-ping
+    - https://docs.microsoft.com/en-us/windows/win32/winsock/tcp-ip-raw-sockets-2
     """
     if identifier is None:
         identifier = _randint_bits(16)
@@ -183,12 +210,14 @@ def tcp_syn_ack_probe(
 
     Finally, there are probably additional failure cases that I'm not considering.
 
+    Requires Linux and root.
+
     References:
     - http://www.networksorcery.com/enp/protocol/tcp.htm
     - http://www.networksorcery.com/enp/protocol/ip.htm
     - https://www.binarytides.com/python-syn-flood-program-raw-sockets-linux/
-
-    Requires Linux and root.
+    - https://scapy.readthedocs.io/en/latest/usage.html#tcp-ping
+    - https://docs.microsoft.com/en-us/windows/win32/winsock/tcp-ip-raw-sockets-2
     """
     if sequence_number is None:
         sequence_number = _randint_bits(32)
