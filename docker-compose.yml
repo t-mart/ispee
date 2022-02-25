@@ -13,9 +13,6 @@ services:
         published: 8000
         protocol: tcp
         mode: host
-    environment:
-     - PYTHONUNBUFFERED=1
-     - COLUMNS=200  # rich's log output defaults to super small 80 otherwise
     volumes:
       - type: bind
         source: ./probes.yml

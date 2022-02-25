@@ -1,0 +1,25 @@
+{
+    "tasks": [
+        {
+            "type": "docker-run",
+            "label": "docker-run: debug",
+            "dependsOn": [
+                "docker-build"
+            ],
+            "python": {
+                "module": "prober"
+            }
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build",
+            "platform": "python",
+            "dockerBuild": {
+                "tag": "prober:debug-latest",
+                "dockerfile": "${workspaceFolder}/Dockerfile-debug",
+                "context": "${workspaceFolder}",
+                "pull": true
+            }
+        }
+    ]
+}

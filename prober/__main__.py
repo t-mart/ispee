@@ -14,15 +14,24 @@ DELAY_INTERVAL_SECONDS = 15
 
 
 @click.command()
-def main() -> None:
+@click.option(
+    "--use-threads/--no-use-threads",
+    default=True,
+    show_default=True,
+    help=(
+        "Use threading (recommended) or not. If not, probes run sequentially, which "
+        "will make the probe interval inconsistent."
+    ),
+)
+def main(use_threads: bool) -> None:
     """
-    Expose an HTTP server on port 8000 that publishes connectivity metrics in Prometheus
+    Expose an HTTP server on port 8000 that publishes probe metrics in Prometheus
     format.
     """
     metric_jobs: list[MetricJob] = []
     for metric_job in read_metric_jobs():
         metric_jobs.append(metric_job)
-        CONSOLE.log("Read job {metric_job} from config file.")
+        CONSOLE.log(f"Read job {metric_job} from config file.")
 
     start_http_server(HTTP_SERVER_PORT)  # type: ignore
     CONSOLE.log(
@@ -32,13 +41,16 @@ def main() -> None:
     CONSOLE.log(f"Starting record loop on {DELAY_INTERVAL_SECONDS} second interval.")
     while True:
         for metric_job in metric_jobs:
-            thread = threading.Thread(
-                target=metric_job.record,
-                daemon=True,
-            )
-            thread.start()
+            if use_threads:
+                thread = threading.Thread(
+                    target=metric_job.record,
+                    daemon=True,
+                )
+                thread.start()
+            else:
+                metric_job.record()
         time.sleep(DELAY_INTERVAL_SECONDS)
 
 
 if __name__ == "__main__":
-    main.main()
+    main.main(auto_envvar_prefix="PROBER")
