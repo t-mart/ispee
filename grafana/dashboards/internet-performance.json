@@ -1,9 +1,28 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645685335193,
+  "iteration": 1645823126194,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -245,16 +264,15 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "99th Percentile"
+              "options": "Average"
             },
             "properties": [
               {
-                "id": "custom.transform",
-                "value": "constant"
-              },
-              {
-                "id": "custom.showPoints",
-                "value": "never"
+                "id": "color",
+                "value": {
+                  "fixedColor": "#d33682",
+                  "mode": "fixed"
+                }
               },
               {
                 "id": "custom.lineStyle",
@@ -264,6 +282,30 @@
                     10
                   ],
                   "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Average"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
                 }
               }
             ]
@@ -300,6 +342,18 @@
           "interval": "$minstep",
           "legendFormat": "{{destination}}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "avg(rate(probe_duration_seconds_sum{type=\"$type\"}[$__interval])/rate(probe_duration_seconds_count{type=\"$type\"}[$__interval]))",
+          "hide": false,
+          "interval": "$minstep",
+          "legendFormat": "Average",
+          "refId": "B"
         }
       ],
       "title": "Latency",
@@ -590,8 +644,8 @@
       {
         "current": {
           "selected": true,
-          "text": "tcp-ping",
-          "value": "tcp-ping"
+          "text": "icmp-ping",
+          "value": "icmp-ping"
         },
         "description": "Type of probe to display data for.",
         "hide": 0,
@@ -622,8 +676,8 @@
         "auto_min": "10s",
         "current": {
           "selected": false,
-          "text": "15m",
-          "value": "15m"
+          "text": "15s",
+          "value": "15s"
         },
         "description": "Sets the interval of a single graphed point. Readings in the same interval will be averaged, so lower values will be spiky and higher values will be smooth. Note that Grafana may override this if the value is too small for the time range.",
         "hide": 0,
@@ -695,7 +749,7 @@
     ]
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -727,6 +781,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 18,
+  "version": 4,
   "weekStart": ""
 }
