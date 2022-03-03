@@ -1,4 +1,4 @@
-src-paths = prober
+	src-paths = prober
 
 .PHONY: all
 all: isort black flake8 pylint mypy
@@ -50,7 +50,7 @@ backup-metrics:
 	  victoriametrics/vmbackup \
 	  	/host/backup-restore/backup-metrics.sh
 
-.PHONY: archive-metrics
+.PHONY: restore-metrics
 restore-metrics: down
 	docker run \
 	  --rm \
