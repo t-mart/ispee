@@ -31,8 +31,8 @@ up:
 down:
 	docker compose down
 
-.PHONY: rebuild
-rebuild: down up
+.PHONY: restart
+restart: down up
 
 .PHONY: export-grafana
 export-grafana:
