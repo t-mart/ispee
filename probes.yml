@@ -70,11 +70,11 @@ probes:
 
   # Suddenlink
   # various IPs behind rdns01.suddenlink.net, rdns02.suddenlink.net, rdns03..., rdns04...
-  - host: "208.180.42.68"
-    type: icmp-ping
-  - host: "208.180.42.68"
-    type: tcp-ping
-    port: 53
+  # - host: "208.180.42.68"
+  #   type: icmp-ping
+  # - host: "208.180.42.68"
+  #   type: tcp-ping
+  #   port: 53
 
   # - host: "208.180.42.100"
   #   type: icmp-ping
@@ -82,14 +82,29 @@ probes:
   #   type: tcp-ping
   #   port: 53
 
-  - host: "66.76.2.132"
-    type: icmp-ping
-  - host: "66.76.2.132"
-    type: tcp-ping
-    port: 53
+  # - host: "66.76.2.132"
+  #   type: icmp-ping
+  # - host: "66.76.2.132"
+  #   type: tcp-ping
+  #   port: 53
 
   # - host: "66.76.2.133"
   #   type: icmp-ping
   # - host: "66.76.2.133"
   #   type: tcp-ping
   #   port: 53
+
+  # Suddenlink
+  # More IPs, found by checking router's given DNS
+  # They don't seem to like ICMP
+  # - host: "24.48.160.2"
+  #   type: icmp-ping
+  - host: "24.48.160.2"
+    type: tcp-ping
+    port: 53
+
+  # - host: "24.48.160.3"
+  #   type: icmp-ping
+  - host: "24.48.160.3"
+    type: tcp-ping
+    port: 53
