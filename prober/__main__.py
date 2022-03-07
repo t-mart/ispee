@@ -43,12 +43,12 @@ def main(use_threads: bool) -> None:
         for metric_job in metric_jobs:
             if use_threads:
                 thread = threading.Thread(
-                    target=metric_job.record,
+                    target=metric_job.measure,
                     daemon=True,
                 )
                 thread.start()
             else:
-                metric_job.record()
+                metric_job.measure()
         time.sleep(DELAY_INTERVAL_SECONDS)
 
 

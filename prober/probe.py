@@ -2,9 +2,6 @@
 Probe functionality.
 """
 
-# TODO: check checksums? with scapy?
-# TODO: try again with scapy send and recv?
-
 import random
 import socket
 import struct

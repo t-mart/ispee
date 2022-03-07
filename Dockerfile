@@ -33,6 +33,6 @@ COPY prober/ /app/prober/
 # just for testing. usually, you'll mount the config file as we do in the docker-compose, so this'll
 # get overwritten. bind-mount is better than baking-into-image because you don't need to rebuild the
 # image when it changes.
-COPY probes.yml /etc/prober/probes.yml
+COPY config.yml /etc/prober/config.yml
 
 CMD ["python", "-m", "prober"]

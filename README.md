@@ -13,6 +13,10 @@ dashboard. That way, you can see things like:
 Use this to get a quantitative idea about your connection, so you can complain with
 confidence to your ISP.
 
+**New!** conn-probe will also gather modem information from an
+[Arris S33 router](https://www.surfboard.com/products/cable-modems/s33/) and visualize things like
+uncorrectable codewords and signal-to-noise ratio.
+
 ## Quickstart
 
 1. Ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop)
@@ -31,7 +35,8 @@ confidence to your ISP.
    docker compose up --detach --build --always-recreate-deps
    ```
 
-4. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>.
+4. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>
+   *(and the modem dashboard at <http://localhost:3000/d/modem-info/modem-info>)*.
 
    The dashboard may initially show "No Data" because the first metrics are making their way to
    Grafana. Just wait and/or reload the page. "No Data" may continue to show for the Failure graphs,
@@ -61,12 +66,15 @@ upper left:
 
 ## Configuration
 
-The conn-probe configuration file defines how it runs. A default configuration is given at
-[probes.yml](probes.yml) and this file will be automatically used in the Docker Compose application.
+The conn-probe configuration file specifies how it runs.
 
-Configuration is read once when the application starts. So, to update the configuration, restart it.
+A default configuration is given at [config.yml](config.yml) and this file will be automatically
+used in the Docker Compose application. You may edit it at will.
 
-The schema for `probes.yml` is demonstrated by this example:
+Configuration is read once when the application starts. So, to update the configuration, restart the
+application.
+
+The schema for `config.yml` is demonstrated by this example:
 
 ```yaml
 probes:
@@ -75,6 +83,10 @@ probes:
   - host: "google.com"
     type: tcp-ping
     port: 80
+
+modems:
+  - host: 192.168.100.1
+    password: "the password"
 ```
 
 - `probes`: list, required
@@ -84,11 +96,16 @@ probes:
       above.
     - `port`: integer between 0 and 65,535, required if `type` == `tcp-ping`. Specifies the
       destination port on which to connect to `host`.
+- `modems`: list, required
+  - `modems` item: object, optional. Groups parameters related to a modem.
+    - `host`: string, required. Specifies where to find the modem information page of an Arris
+      S33 router.
+    - `password`: string, required. Specifies the login password.
 
 Validation of the configuration is minimal for now, and if you mess up, conn-probe may give you an
 error message or may just barf.
 
-### Default Configuration
+### Default Probe Hosts
 
 To get an idea of the general performance of your internet connection, a wide variety of hosts
 should be used that fit the following criteria:
@@ -127,5 +144,5 @@ recreate the containers without data loss.
 
 ### Grafana
 
-The Grafana dashboard should be periodically exported with `make export-grafana` and
+The Grafana dashboards should be periodically exported with `make export-grafana` and
 committed. Requires `curl` and `jq`.

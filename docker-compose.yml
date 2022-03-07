@@ -15,8 +15,8 @@ services:
         mode: host
     volumes:
       - type: bind
-        source: ./probes.yml
-        target: /etc/prober/probes.yml
+        source: ./config.yml
+        target: /etc/prober/config.yml
         read_only: true
     networks:
       - conn-probe-network

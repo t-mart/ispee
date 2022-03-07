@@ -37,6 +37,7 @@ restart: down up
 .PHONY: export-grafana
 export-grafana:
 	curl localhost:3000/api/dashboards/uid/internet-performance | jq ".dashboard" > ./grafana/dashboards/internet-performance.json
+	curl localhost:3000/api/dashboards/uid/modem-info | jq ".dashboard" > ./grafana/dashboards/modem-info.json
 
 .PHONY: backup-metrics
 backup-metrics:

@@ -12,6 +12,8 @@ click = "^8.0.4"
 PyYAML = "^6.0"
 scapy = "^2.4.5"
 attrs = "^21.4.0"
+httpx = "^0.22.0"
+yarl = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
