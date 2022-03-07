@@ -94,7 +94,7 @@ class UpstreamChannel:
     @classmethod
     def parse_response(cls, response: str) -> Iterable[UpstreamChannel]:
         """
-        Parse the funny-looking format from a GetCustomerStatusDownstreamChannelInfo
+        Parse the funny-looking format from a GetCustomerStatusUpstreamChannelInfo
         request.
         """
         # this ordering comes from a comment in https://<host>/js/connectionstatus.js:
@@ -148,10 +148,8 @@ class S33Scraper:
     _client: httpx.Client = field(factory=_default_httpx_client)
 
     @property
-    def hnap_url(self) -> str:
-        """
-        Return the HNAP1 url of the host for this scraper.
-        """
+    def _hnap_url(self) -> str:
+        """Return the HNAP1 url of the host for this scraper."""
         return str(URL.build(scheme="https", host=self.host, path="/HNAP1/"))
 
     @staticmethod
@@ -168,7 +166,9 @@ class S33Scraper:
         )
 
     def _hnap_auth_header_value(self, soap_action: str) -> str:
+        """Return a value to be used for the custom HNAP_AUTH http header."""
         # this method is not contingent on already being logged in. there's a fallback
+        # for when we're not logged in.
         if self._auth_uid_private_key is not None:
             _, private_key = self._auth_uid_private_key
         else:
@@ -185,22 +185,29 @@ class S33Scraper:
         return f"{auth_part} {cur_time_millis}"
 
     def _build_soap_action_headers(
-        self, soap_action: str, set_auth_cookie: bool
+        self, soap_action: str, with_auth_cookies: bool
     ) -> dict[str, str]:
         """
         Build the time-sensitive headers for a /HNAP1/ request. These should be built
         anew before each request. (I think?)
         """
+        # The SOAPACTION is like the API endpoint... it specfies what action we're doing
+        # on the server
+        #
+        # Every request always gets an HNAP_AUTH header, which can be generated even if
+        # we're not currently authenticated.
         headers = {
             "Accept": "application/json",
             "SOAPACTION": soap_action,
             "HNAP_AUTH": self._hnap_auth_header_value(soap_action),
         }
 
-        if set_auth_cookie:
+        # however, setting the Cookie with uid and PrivateKey can only occur if we've
+        # previously logged in.
+        if with_auth_cookies:
             if self._auth_uid_private_key is None:
                 raise NotAuthenticatedError(
-                    "Cannot add authentication header when login has not yet occurred."
+                    "Cannot add authentication cookie when login has not yet occurred."
                 )
             uid, private_key = self._auth_uid_private_key
             headers["Cookie"] = (
@@ -211,7 +218,7 @@ class S33Scraper:
 
         return headers
 
-    def _get_login_challenge(self) -> _LoginChallengeParameters:
+    def _request_login_challenge(self) -> _LoginChallengeParameters:
         """
         Do the first part of the login flow, where we post a "request" action which
         provides us with a public key, uid, and challenge, which we'll use later.
@@ -228,11 +235,11 @@ class S33Scraper:
         soap_action = '"http://purenetworks.com/HNAP1/Login"'
 
         response = self._client.post(  # pylint: disable=no-member
-            url=self.hnap_url,
+            url=self._hnap_url,
             json=payload,
             headers=self._build_soap_action_headers(
                 soap_action=soap_action,
-                set_auth_cookie=False,
+                with_auth_cookies=False,  # we're not auth-ed yet, so no auth cookies
             ),
         )
         if response.status_code != httpx.codes.OK:
@@ -244,6 +251,7 @@ class S33Scraper:
 
         return _LoginChallengeParameters(
             public_key=response_obj["LoginResponse"]["PublicKey"],
+            # object calls it "Cookie", but its use later calls it "uid"
             uid=response_obj["LoginResponse"]["Cookie"],
             challenge_msg=response_obj["LoginResponse"]["Challenge"],
         )
@@ -278,20 +286,20 @@ class S33Scraper:
         }
         soap_action = '"http://purenetworks.com/HNAP1/Login"'
         headers = self._build_soap_action_headers(
-            soap_action=soap_action, set_auth_cookie=True
+            soap_action=soap_action, with_auth_cookies=True
         )
 
-        resp = self._client.post(  # pylint: disable=no-member
-            url=self.hnap_url,
+        response = self._client.post(  # pylint: disable=no-member
+            url=self._hnap_url,
             json=payload,
             headers=headers,
         )
-        if resp.status_code != httpx.codes.OK:
+        if response.status_code != httpx.codes.OK:
             raise ModemScrapeError(
-                f"Got {resp.status_code} status code when making 2nd login request"
+                f"Got {response.status_code} status code when making 2nd login request"
             )
 
-        response_obj = resp.json()
+        response_obj = response.json()
 
         login_result = response_obj["LoginResponse"]["LoginResult"]
         if login_result != "OK":
@@ -305,7 +313,7 @@ class S33Scraper:
 
         Btw, we know how to do this from reading https://<host>/js/Login.js
         """
-        challenge_params = self._get_login_challenge()
+        challenge_params = self._request_login_challenge()
 
         private_key = self._arris_hmac(
             key=(challenge_params.public_key + self.password).encode("utf-8"),
@@ -336,25 +344,38 @@ class S33Scraper:
         try:
             headers = self._build_soap_action_headers(
                 soap_action=soap_action,
-                set_auth_cookie=True,
+                with_auth_cookies=True,
             )
         except NotAuthenticatedError:
+            CONSOLE.log(
+                "Trying to make request to authorized endpoint while unauthorized. "
+                "(This happens with fresh processes that have never logged in). "
+                "Attempting login..."
+            )
             self._login()
+            # just retry the method
             return self.get_channel_info()
 
         response = self._client.post(  # pylint: disable=no-member
-            url=self.hnap_url,
+            url=self._hnap_url,
             json=payload,
             headers=headers,
             follow_redirects=True,
         )
 
         if response.status_code == 404:
-            CONSOLE.log("Scrape request returned 404. Attempting login...")
+            CONSOLE.log(
+                "Scrape request returned 404. (Credentials may have expired.) "
+                "Attempting login..."
+            )
             self._login()
+            # just retry the method
             return self.get_channel_info()
 
-        assert response.status_code == 200
+        if response.status_code != httpx.codes.OK:
+            raise ModemScrapeError(
+                f"Got {response.status_code} status code when getting channel info"
+            )
 
         response_obj = response.json()
 
