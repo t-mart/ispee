@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 1,
-  "iteration": 1645823126194,
+  "iteration": 1646685385796,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -101,9 +101,9 @@
             "type": "prometheus",
             "uid": "victoriauid"
           },
-          "exemplar": false,
+          "exemplar": true,
           "expr": "avg(rate(probe_duration_seconds_sum{type=\"$type\"}[$__interval]))/avg(rate(probe_duration_seconds_count{type=\"$type\"}[$__interval]))",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -173,9 +173,9 @@
             "type": "prometheus",
             "uid": "victoriauid"
           },
-          "exemplar": false,
+          "exemplar": true,
           "expr": "sum(increase(probe_failure_total{type=\"$type\"}[$__interval]))/sum(increase(probe_total{type=\"$type\"}[$__interval]))",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -655,12 +655,12 @@
         "name": "type",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "tcp-ping",
             "value": "tcp-ping"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "icmp-ping",
             "value": "icmp-ping"
           }
@@ -781,6 +781,6 @@
   "timezone": "browser",
   "title": "Internet Performance",
   "uid": "internet-performance",
-  "version": 8,
+  "version": 10,
   "weekStart": ""
 }
