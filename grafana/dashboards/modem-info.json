@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1646693501336,
+  "iteration": 1646710410331,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -286,6 +286,7 @@
             "spanNulls": false
           },
           "mappings": [],
+          "min": 25,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -454,12 +455,12 @@
             "value": "15m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "30m",
             "value": "30m"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "1h",
             "value": "1h"
           },
@@ -512,6 +513,6 @@
   "timezone": "",
   "title": "Modem Info",
   "uid": "modem-info",
-  "version": 25,
+  "version": 28,
   "weekStart": ""
 }
