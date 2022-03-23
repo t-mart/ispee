@@ -22,7 +22,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1648058974359,
+  "iteration": 1648060569370,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -454,7 +454,7 @@
           "refId": "A"
         }
       ],
-      "title": "Corrected Codewords",
+      "title": "Corrected Codewords by Channel",
       "tooltip": {
         "show": true,
         "showHistogram": false
@@ -512,7 +512,7 @@
           "refId": "A"
         }
       ],
-      "title": "Uncorrectable Codewords",
+      "title": "Uncorrectable Codewords by Channel",
       "tooltip": {
         "show": true,
         "showHistogram": false
@@ -667,7 +667,7 @@
       "type": "state-timeline"
     }
   ],
-  "refresh": "15m",
+  "refresh": "",
   "schemaVersion": 35,
   "style": "dark",
   "tags": [],
@@ -771,6 +771,6 @@
   "timezone": "",
   "title": "Modem Info",
   "uid": "modem-info",
-  "version": 32,
+  "version": 36,
   "weekStart": ""
 }
