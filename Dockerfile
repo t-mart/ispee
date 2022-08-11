@@ -25,7 +25,7 @@ RUN set -ex \
     # contains discrete version-pinned/hashed depenedencies, so there could be differences.
     && mkdir /app/prober \
     && touch /app/prober/__init__.py \
-    && pip install /app --use-feature=in-tree-build
+    && pip install /app
 
 # ok, now that deps are cached, actually copy the module.
 COPY prober/ /app/prober/

@@ -22,7 +22,7 @@ COPY pyproject.toml /app/
 RUN set -ex \
     && mkdir /app/prober \
     && touch /app/prober/__init__.py \
-    && pip install /app --use-feature=in-tree-build
+    && pip install /app
 
 COPY prober/ /app/prober/
 COPY config.yml /etc/prober/config.yml
