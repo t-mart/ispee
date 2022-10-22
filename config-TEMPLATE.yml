@@ -1,59 +1,71 @@
 # Rename this file to `config.yml`
 
-modems:
-  - host: 192.168.0.1
-    password: "<password>"  # fill this in
+# fetch modem stats
+arris_s33_modem:
+  host: 192.168.0.1
+  password: "<password>"  # fill this in
 
+# fetch IP address
+ip:
+
+
+# ping performance
 probes:
   # Google
   # https://developers.google.com/speed/public-dns
   - host: "8.8.8.8"
     type: icmp-ping
+    name: "Google"
   - host: "8.8.8.8"
     type: tcp-ping
     port: 53
+    name: "Google"
 
   # Cloudflare
   # https://www.cloudflare.com/learning/dns/what-is-1.1.1.1/
   - host: "1.1.1.1"
     type: icmp-ping
+    name: "Cloudflare"
   - host: "1.1.1.1"
     type: tcp-ping
     port: 53
+    name: "Cloudflare"
 
   # OpenDNS by Cisco
   # https://www.opendns.com/
   - host: "208.67.222.222"
     type: icmp-ping
+    name: "OpenDNS"
   - host: "208.67.222.222"
     type: tcp-ping
     port: 53
+    name: "OpenDNS"
 
   # Level3 DNS
   - host: "4.2.2.1"
     type: icmp-ping
+    name: "Level3"
   - host: "4.2.2.1"
     type: tcp-ping
     port: 53
+    name: "Level3"
 
   # Comodo Secure DNS
   - host: "8.26.56.26"
     type: icmp-ping
+    name: "Comodo"
   - host: "8.26.56.26"
     type: tcp-ping
     port: 53
+    name: "Comodo"
 
   # Suddenlink
   # They don't seem to like ICMP
-  # - host: "24.48.160.2"
-  #   type: icmp-ping
   - host: "24.48.160.2"
     type: tcp-ping
     port: 53
-
+    name: "Suddenlink"
   - host: "24.48.160.3"
     type: tcp-ping
     port: 53
-
-ip:
-# intentionally blank
+    name: "Suddenlink"

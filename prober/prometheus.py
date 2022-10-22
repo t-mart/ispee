@@ -2,22 +2,32 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Callable, Protocol
+from typing import Callable, ClassVar
+from abc import abstractmethod, ABC
+from trio_util import periodic
 
-from attrs import define
+from attrs import define, frozen
 from prometheus_client import Counter, Gauge, Histogram
 
 from prober.console import CONSOLE
 from prober.exception import ProbeException
 from prober.probe import icmp_ping_probe, tcp_syn_ack_probe
 from prober.s33 import S33Scraper
+import trio
 
-
-class MetricJob(Protocol):
+@frozen(kw_only=True)
+class MetricJob(ABC):
     """Static type checking protocol for metric jobs"""
 
     description: str
+    frequency_seconds: float
 
+    async def async_measure(self) -> None:
+        CONSOLE.log(f"Starting {self} job on a {self.frequency_seconds} frequency")
+        async for _ in periodic(self.frequency_seconds):
+            await trio.to_thread.run_sync(self.measure)
+
+    @abstractmethod
     def measure(self) -> None:
         """Take a measurement and record it to a prometheus metric."""
         ...
@@ -43,18 +53,20 @@ PROBE_COUNTER = Counter(
 
 
 @define
-class ProbeMetricJob:
+class ProbeMetricJob(MetricJob):
     """Represents a job that can record some probe metric."""
 
     description: str
     _probe_fn: Callable[[], float]
     _labels: dict[str, str]
 
+    FREQUENCY_SECONDS: ClassVar[float] = 15
+
     @classmethod
-    def build_tcp_ping(cls, host: str, port: int) -> MetricJob:
+    def build_tcp_ping(cls, host: str, port: int, name: str) -> MetricJob:
         """Create a TCP ping metric job."""
         probe_fn = partial(tcp_syn_ack_probe, host=host, dest_port=port)
-        labels = {"type": "tcp-ping", "destination": f"{host}:{port}"}
+        labels = {"type": "tcp-ping", "destination": f"{host}:{port}-{name}"}
 
         # unfortunately, there's a coupling between the input arguments of this function
         # and the expected labels of the prom gauges/counters we will update. so, we do
@@ -64,21 +76,29 @@ class ProbeMetricJob:
         ), "TCP ping probe job configured with wrong labels, report bug"
 
         return cls(
-            description=f"probe tcp {host=} {port=}", probe_fn=probe_fn, labels=labels
+            description=f"probe tcp {host=} {port=}",
+            probe_fn=probe_fn,
+            labels=labels,
+            frequency_seconds=cls.FREQUENCY_SECONDS,
         )
 
     @classmethod
-    def build_icmp_ping(cls, host: str) -> MetricJob:
+    def build_icmp_ping(cls, host: str, name: str) -> MetricJob:
         """Create a ICMP ping metric job."""
         probe_fn = partial(icmp_ping_probe, host=host)
-        labels = {"type": "icmp-ping", "destination": host}
+        labels = {"type": "icmp-ping", "destination": f"{host}-{name}"}
 
         # ditto as above in tcp_ping_probe_job
         assert set(labels) == set(
             PROBE_LABELS
         ), "ICMP ping probe job configured with wrong labels, report bug"
 
-        return cls(description=f"probe icmp {host=}", probe_fn=probe_fn, labels=labels)
+        return cls(
+            description=f"probe icmp {host=}",
+            probe_fn=probe_fn,
+            labels=labels,
+            frequency_seconds=cls.FREQUENCY_SECONDS,
+        )
 
     def measure(self) -> None:
         """
@@ -146,11 +166,13 @@ CHANNEL_UNCORRECTABLE_GAUGE = Gauge(  # type: ignore
 
 
 @define
-class ModemMetricJob:
+class ArrisS33ModemMetricJob(MetricJob):
     """Represents a job that can record some probe metric."""
 
     description: str
     _scraper: S33Scraper
+
+    FREQUENCY_SECONDS: ClassVar[float] = 15
 
     @classmethod
     def build(cls, host: str, password: str) -> MetricJob:
@@ -158,6 +180,7 @@ class ModemMetricJob:
         return cls(
             description=f"modem_info {host=}",
             scraper=S33Scraper(host=host, password=password),
+            frequency_seconds=cls.FREQUENCY_SECONDS,
         )
 
     def measure(self) -> None:

@@ -1,56 +1,47 @@
 """Main module of the checker."""
-import threading
-import time
-
 import click
 from prometheus_client import start_http_server
 
+from pathlib import Path
 from prober.config import read_metric_jobs
 from prober.console import CONSOLE
-from prober.prometheus import MetricJob
+import trio
 
-HTTP_SERVER_PORT = 8000
-DELAY_INTERVAL_SECONDS = 15
+DEFAULT_HTTP_SERVER_PORT = 8000
+DEFAULT_CONFIG_PATH = Path("/etc/prober/config.yml")
+
+
+async def start_jobs(config_path: Path) -> None:
+    async with trio.open_nursery() as nursery:
+        for metric_job in read_metric_jobs(config_path):
+            nursery.start_soon(metric_job.async_measure)
 
 
 @click.command()
 @click.option(
-    "--use-threads/--no-use-threads",
-    default=True,
+    "-p",
+    "--port",
+    default=DEFAULT_HTTP_SERVER_PORT,
     show_default=True,
-    help=(
-        "Use threading (recommended) or not. If not, probes run sequentially, which "
-        "will make the probe interval inconsistent."
-    ),
+    help="Run the prometheus HTTP server on this port",
 )
-def main(use_threads: bool) -> None:
+@click.option(
+    "--config-path",
+    default=DEFAULT_CONFIG_PATH,
+    show_default=True,
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, path_type=Path),
+    help="Load configuration from this path",
+)
+def main(port: int, config_path: Path) -> None:
     """
     Expose an HTTP server on port 8000 that publishes probe metrics in Prometheus
     format.
     """
-    metric_jobs: list[MetricJob] = []
-    for metric_job in read_metric_jobs():
-        metric_jobs.append(metric_job)
-        CONSOLE.log(f"Read job {metric_job} from config file.")
+    start_http_server(port)  # type: ignore
+    CONSOLE.log(f"Prometheus metrics exposed on HTTP server with port {port}.")
 
-    start_http_server(HTTP_SERVER_PORT)  # type: ignore
-    CONSOLE.log(
-        f"Prometheus metrics exposed on HTTP server with port {HTTP_SERVER_PORT}."
-    )
-
-    CONSOLE.log(f"Starting record loop on {DELAY_INTERVAL_SECONDS} second interval.")
-    while True:
-        for metric_job in metric_jobs:
-            if use_threads:
-                thread = threading.Thread(
-                    target=metric_job.measure,
-                    daemon=True,
-                )
-                thread.start()
-            else:
-                metric_job.measure()
-        time.sleep(DELAY_INTERVAL_SECONDS)
+    trio.run(start_jobs, config_path)
 
 
 if __name__ == "__main__":
-    main.main(auto_envvar_prefix="PROBER")
+    main.main()

@@ -14,6 +14,8 @@ scapy = "^2.4.5"
 attrs = "^21.4.0"
 httpx = "^0.22.0"
 yarl = "^1.7.2"
+trio = "^0.22.0"
+trio-util = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -24,5 +26,5 @@ isort = "^5.10.1"
 types-PyYAML = "^6.0.4"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
