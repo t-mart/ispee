@@ -26,16 +26,24 @@ uncorrectable codewords and signal-to-noise ratio.
 
    ```shell
    git clone https://github.com/t-mart/conn-probe.git
+   cd conn-probe/
    ```
 
-3. Start the application:
+3. Copy the config template to the config location and edit it:
+
+   ```shell
+   cp config-TEMPLATE.yml config.yml
+   vim config.yml  # edit away
+   ```
+
+4. Start the application:
 
    ```shell
    cd conn-probe/
    docker compose up --detach --build --always-recreate-deps
    ```
 
-4. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>
+5. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>
    *(and the modem dashboard at <http://localhost:3000/d/modem-info/modem-info>)*.
 
    The dashboard may initially show "No Data" because the first metrics are making their way to
