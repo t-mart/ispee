@@ -659,17 +659,22 @@
         "name": "type",
         "options": [
           {
-            "selected": false,
-            "text": "tcp-ping",
-            "value": "tcp-ping"
+            "selected": true,
+            "text": "udp-dns-ping",
+            "value": "udp-dns-ping"
           },
           {
-            "selected": true,
+            "selected": false,
+            "text": "tcp-dns-ping",
+            "value": "tcp-dns-ping"
+          },
+          {
+            "selected": false,
             "text": "icmp-ping",
             "value": "icmp-ping"
           }
         ],
-        "query": "tcp-ping,icmp-ping",
+        "query": "udp-dns-ping,tcp-dns-ping,icmp-ping",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -785,6 +790,6 @@
   "timezone": "browser",
   "title": "Latency",
   "uid": "latency",
-  "version": 1,
+  "version": 4,
   "weekStart": ""
 }

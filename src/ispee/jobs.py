@@ -87,7 +87,7 @@ class PingJob(MetricJob):
         cls, host: str, dns_type: DNS_PING_TYPES, name: str
     ) -> PingJob:
         probe_fn = partial(dns_ping, host=host, dns_type=dns_type)
-        labels = {"type": f"{dns_type}-ping", "destination": f"{host}-{name}"}
+        labels = {"type": f"{dns_type}-dns-ping", "destination": f"{host}-{name}"}
 
         return cls(
             probe_fn=probe_fn,
