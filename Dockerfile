@@ -23,16 +23,16 @@ RUN set -ex \
     # which do not require a module to exist before installation dependencies. additionally,
     # pyproject.toml only contains a "symbolic" representation of a dependency, while poetry.lock
     # contains discrete version-pinned/hashed depenedencies, so there could be differences.
-    && mkdir /app/prober \
-    && touch /app/prober/__init__.py \
+    && mkdir /app/ispee \
+    && touch /app/ispee/__init__.py \
     && pip install /app
 
 # ok, now that deps are cached, actually copy the module.
-COPY prober/ /app/prober/
+COPY src/ispee/ /app/ispee/
 
 # just for testing. usually, you'll mount the config file as we do in the docker-compose, so this'll
 # get overwritten. bind-mount is better than baking-into-image because you don't need to rebuild the
 # image when it changes.
-COPY config.yml /etc/prober/config.yml
+COPY config.yml /etc/ispee/config.yml
 
-CMD ["python", "-m", "prober"]
+CMD ["python", "-m", "ispee"]

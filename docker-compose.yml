@@ -2,12 +2,12 @@ version: "3.9"
 
 services:
 
-  prober:
-    container_name: prober
+  ispee:
+    container_name: ispee
     restart: unless-stopped
     build:
       context: .
-    image: prober
+    image: ispee
     ports:
       - target: 8000
         published: 8000
@@ -16,13 +16,13 @@ services:
     volumes:
       - type: bind
         source: ./config.yml
-        target: /etc/prober/config.yml
+        target: /etc/ispee/config.yml
         read_only: true
     networks:
-      - conn-probe-network
+      - ispee-network
 
   vmagent:
-    container_name: vmagent
+    container_name: ispee-vmagent
     restart: unless-stopped
     image: victoriametrics/vmagent
     ports:
@@ -44,10 +44,10 @@ services:
     depends_on:
       - victoriametrics
     networks:
-      - conn-probe-network
+      - ispee-network
 
   victoriametrics:
-    container_name: victoriametrics
+    container_name: ispee-victoriametrics
     restart: unless-stopped
     image: victoriametrics/victoria-metrics
     ports:
@@ -64,10 +64,10 @@ services:
       - "--httpListenAddr=:8428"
       - "--retentionPeriod=1"
     networks:
-      - conn-probe-network
+      - ispee-network
 
   grafana:
-    container_name: grafana
+    container_name: ispee-grafana
     restart: unless-stopped
     image: grafana/grafana
     ports:
@@ -93,16 +93,16 @@ services:
         source: grafana-storage
         target: /var/lib/grafana
     networks:
-      - conn-probe-network
+      - ispee-network
 
 volumes:
   grafana-storage:
-    name: conn-probe-grafana-storage
+    name: ispee-grafana-storage
   victoriametrics-storage:
-    name: conn-probe-victoriametrics-storage
+    name: ispee-victoriametrics-storage
   vmagent-storage:
-    name: conn-probe-vmagent-storage
+    name: ispee-vmagent-storage
 
 networks:
-  conn-probe-network:
-    name: conn-probe-network
+  ispee-network:
+    name: ispee-network

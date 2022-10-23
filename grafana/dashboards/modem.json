@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -21,8 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1648060569370,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -73,7 +75,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -138,7 +140,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -668,7 +670,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 35,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -688,7 +690,7 @@
         "name": "minstep",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "15s",
             "value": "15s"
           },
@@ -708,7 +710,7 @@
             "value": "5m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "15m",
             "value": "15m"
           },
@@ -769,8 +771,8 @@
     ]
   },
   "timezone": "",
-  "title": "Modem Info",
-  "uid": "modem-info",
-  "version": 36,
+  "title": "Modem",
+  "uid": "modem",
+  "version": 1,
   "weekStart": ""
 }

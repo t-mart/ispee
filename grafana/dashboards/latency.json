@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -21,12 +24,15 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 1,
-  "iteration": 1646685385796,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
     {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -34,6 +40,15 @@
         "y": 0
       },
       "id": 58,
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Current Data",
       "type": "row"
     },
@@ -94,7 +109,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -102,7 +117,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "avg(rate(probe_duration_seconds_sum{type=\"$type\"}[$__interval]))/avg(rate(probe_duration_seconds_count{type=\"$type\"}[$__interval]))",
+          "expr": "avg(rate(ping_duration_seconds_sum{type=\"$type\"}[$__interval]))/avg(rate(ping_duration_seconds_count{type=\"$type\"}[$__interval]))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -166,7 +181,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -174,7 +189,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "sum(increase(probe_failure_total{type=\"$type\"}[$__interval]))/sum(increase(probe_total{type=\"$type\"}[$__interval]))",
+          "expr": "sum(increase(ping_failure_total{type=\"$type\"}[$__interval]))/sum(increase(ping_total{type=\"$type\"}[$__interval]))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -186,6 +201,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -194,6 +213,15 @@
       },
       "id": 14,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Historical Data",
       "type": "row"
     },
@@ -285,30 +313,6 @@
                 }
               }
             ]
-          },
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "Average"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
           }
         ]
       },
@@ -337,7 +341,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "rate(probe_duration_seconds_sum{type=\"$type\"}[$__interval])/rate(probe_duration_seconds_count{type=\"$type\"}[$__interval])",
+          "expr": "rate(ping_duration_seconds_sum{type=\"$type\"}[$__interval])/rate(ping_duration_seconds_count{type=\"$type\"}[$__interval])",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "{{destination}}",
@@ -349,7 +353,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "avg(rate(probe_duration_seconds_sum{type=\"$type\"}[$__interval])/rate(probe_duration_seconds_count{type=\"$type\"}[$__interval]))",
+          "expr": "avg(rate(ping_duration_seconds_sum{type=\"$type\"}[$__interval])/rate(ping_duration_seconds_count{type=\"$type\"}[$__interval]))",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Average",
@@ -415,7 +419,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -423,7 +427,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "histogram_quantiles(\"phi\", 0.5, 0.9, 0.95, 0.99, sum(rate(probe_duration_seconds_bucket{type=\"$type\"}[$__range])) by (le))",
+          "expr": "histogram_quantiles(\"phi\", 0.5, 0.9, 0.95, 0.99, sum(rate(ping_duration_seconds_bucket{type=\"$type\"}[$__range])) by (le))",
           "hide": false,
           "interval": "",
           "legendFormat": "{{phi}} Percentile",
@@ -541,7 +545,7 @@
             "uid": "victoriauid"
           },
           "exemplar": false,
-          "expr": "increase(probe_failure_total{type=\"$type\"}[$__interval])",
+          "expr": "increase(ping_failure_total{type=\"$type\"}[$__interval])",
           "instant": false,
           "interval": "$minstep",
           "legendFormat": "{{destination}}",
@@ -553,7 +557,7 @@
             "uid": "victoriauid"
           },
           "exemplar": false,
-          "expr": "sum(increase(probe_failure_total{type=\"$type\"}[$__interval]))",
+          "expr": "sum(increase(ping_failure_total{type=\"$type\"}[$__interval]))",
           "hide": false,
           "instant": false,
           "interval": "$minstep",
@@ -617,7 +621,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.1",
+      "pluginVersion": "9.0.7",
       "targets": [
         {
           "datasource": {
@@ -625,7 +629,7 @@
             "uid": "victoriauid"
           },
           "exemplar": true,
-          "expr": "sum(increase(probe_failure_total{type=\"$type\"}[$__range]))/sum(increase(probe_total{type=\"$type\"}[$__range]))",
+          "expr": "sum(increase(ping_failure_total{type=\"$type\"}[$__range]))/sum(increase(ping_total{type=\"$type\"}[$__range]))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -636,7 +640,7 @@
     }
   ],
   "refresh": "15s",
-  "schemaVersion": 35,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -779,8 +783,8 @@
     "type": "timepicker"
   },
   "timezone": "browser",
-  "title": "Internet Performance",
-  "uid": "internet-performance",
-  "version": 13,
+  "title": "Latency",
+  "uid": "latency",
+  "version": 1,
   "weekStart": ""
 }

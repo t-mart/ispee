@@ -10,15 +10,13 @@ import httpx
 from attrs import define, field, frozen
 from yarl import URL
 
-from prober.console import CONSOLE
-from prober.exception import ModemScrapeError, NotAuthenticatedError
+from ispee.console import CONSOLE
+from ispee.exception import ModemScrapeError
 
-
-def _default_httpx_client() -> httpx.Client:
-    return httpx.Client(
-        verify=False,  # s33 uses self-signed cert. gross.
-        timeout=httpx.Timeout(timeout=30.0),  # these reads are awfully slow sometimes
-    )
+CLIENT = httpx.AsyncClient(
+    verify=False,  # s33 uses self-signed cert. gross.
+    timeout=30.0,  # these reads are awfully slow sometimes
+)
 
 
 @frozen(kw_only=True)
@@ -145,7 +143,6 @@ class S33Scraper:
     username: str = field(default="admin")  # AFAIK, this is the only username
     # this is a tuple bc they share the same lifetime. either both are set or neither
     _auth_uid_private_key: Optional[tuple[str, str]] = field(default=None)
-    _client: httpx.Client = field(factory=_default_httpx_client)
 
     @property
     def _hnap_url(self) -> str:
@@ -206,7 +203,7 @@ class S33Scraper:
         # previously logged in.
         if with_auth_cookies:
             if self._auth_uid_private_key is None:
-                raise NotAuthenticatedError(
+                raise ModemScrapeError(
                     "Cannot add authentication cookie when login has not yet occurred."
                 )
             uid, private_key = self._auth_uid_private_key
@@ -218,7 +215,7 @@ class S33Scraper:
 
         return headers
 
-    def _request_login_challenge(self) -> _LoginChallengeParameters:
+    async def _request_login_challenge(self) -> _LoginChallengeParameters:
         """
         Do the first part of the login flow, where we post a "request" action which
         provides us with a public key, uid, and challenge, which we'll use later.
@@ -234,7 +231,7 @@ class S33Scraper:
         }
         soap_action = '"http://purenetworks.com/HNAP1/Login"'
 
-        response = self._client.post(  # pylint: disable=no-member
+        response = await CLIENT.post(  # pylint: disable=no-member
             url=self._hnap_url,
             json=payload,
             headers=self._build_soap_action_headers(
@@ -256,7 +253,7 @@ class S33Scraper:
             challenge_msg=response_obj["LoginResponse"]["Challenge"],
         )
 
-    def _submit_hmac_challenge(self, challenge_msg: str) -> None:
+    async def _submit_hmac_challenge(self, challenge_msg: str) -> None:
         """
         Do the second part of the login flow, where a "login" action is submitted with
         an HMAC-ed a challenge message. Raises a NotAuthenticatedError exception if
@@ -267,7 +264,7 @@ class S33Scraper:
         appears to only do something server side.
         """
         if self._auth_uid_private_key is None:
-            raise NotAuthenticatedError(
+            raise ModemScrapeError(
                 "Cannot do second part of login flow before first part."
             )
         _, private_key = self._auth_uid_private_key
@@ -289,7 +286,7 @@ class S33Scraper:
             soap_action=soap_action, with_auth_cookies=True
         )
 
-        response = self._client.post(  # pylint: disable=no-member
+        response = await CLIENT.post(  # pylint: disable=no-member
             url=self._hnap_url,
             json=payload,
             headers=headers,
@@ -306,14 +303,14 @@ class S33Scraper:
             raise ModemScrapeError(f"Got {login_result} login result (expecting OK)")
         CONSOLE.log("Logged in successfully")
 
-    def _login(self) -> None:
+    async def _login(self) -> None:
         """
         Do the two-part login flow. It provides us with credentials that we put into
         headers and cookies, and also authenticates our credentials on the server.
 
         Btw, we know how to do this from reading https://<host>/js/Login.js
         """
-        challenge_params = self._request_login_challenge()
+        challenge_params = await self._request_login_challenge()
 
         private_key = self._arris_hmac(
             key=(challenge_params.public_key + self.password).encode("utf-8"),
@@ -323,9 +320,9 @@ class S33Scraper:
         # store these for later use, they'll be part of every subsequent Cookie header
         self._auth_uid_private_key = (challenge_params.uid, private_key)
 
-        self._submit_hmac_challenge(challenge_params.challenge_msg)
+        await self._submit_hmac_challenge(challenge_params.challenge_msg)
 
-    def get_channel_info(
+    async def get_channel_info(
         self,
     ) -> tuple[Iterable[DownstreamChannel], Iterable[UpstreamChannel]]:
         """
@@ -346,17 +343,17 @@ class S33Scraper:
                 soap_action=soap_action,
                 with_auth_cookies=True,
             )
-        except NotAuthenticatedError:
+        except ModemScrapeError:
             CONSOLE.log(
                 "Trying to make request to authorized endpoint while unauthorized. "
                 "(This happens with fresh processes that have never logged in). "
                 "Attempting login..."
             )
-            self._login()
+            await self._login()
             # just retry the method
-            return self.get_channel_info()
+            return await self.get_channel_info()
 
-        response = self._client.post(  # pylint: disable=no-member
+        response = await CLIENT.post(  # pylint: disable=no-member
             url=self._hnap_url,
             json=payload,
             headers=headers,
@@ -368,9 +365,9 @@ class S33Scraper:
                 "Scrape request returned 404. (Credentials may have expired.) "
                 "Attempting login..."
             )
-            self._login()
+            await self._login()
             # just retry the method
-            return self.get_channel_info()
+            return await self.get_channel_info()
 
         if response.status_code != httpx.codes.OK:
             raise ModemScrapeError(

@@ -2,5 +2,5 @@ __pycache__
 .pytest_cache
 .mypy_cache
 *metrics.tar.gz
-!.vscode
 config.yml
+dist

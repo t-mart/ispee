@@ -1,45 +1,30 @@
-	src-paths = prober
+src-paths := src
 
-.PHONY: all
-all: isort black flake8 pylint mypy
+.PHONY: all check format up down export-grafana backup-metrics restore-metrics
 
-.PHONY: mypy
-mypy:
+all: format check
+
+check:
 	mypy $(src-paths)
-
-.PHONY: isort
-isort:
-	isort $(src-paths)
-
-.PHONY: flake8
-flake8:
 	flake8 $(src-paths)
 
-.PHONY: pylint
-pylint:
-	pylint $(src-paths)
-
-.PHONY: black
-black:
+format:
+	isort $(src-paths)
 	black $(src-paths)
 
-.PHONY: up
 up:
 	docker compose up --detach --build --always-recreate-deps
 
-.PHONY: down
 down:
 	docker compose down
 
-.PHONY: restart
 restart: down up
 
-.PHONY: export-grafana
 export-grafana:
-	curl localhost:3000/api/dashboards/uid/internet-performance | jq ".dashboard" > ./grafana/dashboards/internet-performance.json
-	curl localhost:3000/api/dashboards/uid/modem-info | jq ".dashboard" > ./grafana/dashboards/modem-info.json
+	curl localhost:3000/api/dashboards/uid/latency | jq ".dashboard" > ./grafana/dashboards/latency.json
+	curl localhost:3000/api/dashboards/uid/modem | jq ".dashboard" > ./grafana/dashboards/modem.json
+	curl localhost:3000/api/dashboards/uid/ip-address | jq ".dashboard" > ./grafana/dashboards/ip-address.json
 
-.PHONY: backup-metrics
 backup-metrics:
 	docker run \
 	  --rm \
@@ -51,7 +36,6 @@ backup-metrics:
 	  victoriametrics/vmbackup \
 	  	/host/backup-restore/backup-metrics.sh
 
-.PHONY: restore-metrics
 restore-metrics: down
 	docker run \
 	  --rm \
