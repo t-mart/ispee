@@ -39,7 +39,12 @@ class MetricJob(ABC):
     async def run(self) -> None:
         CONSOLE.log(f"Starting {self} job on a {self.frequency_seconds} frequency")
         async for _ in periodic(self.frequency_seconds):
-            await self.measure()
+            # if we haven't coded specifically for this case, log it and try again?
+            try:
+                await self.measure()
+            except Exception as exc:
+                CONSOLE.log(f'{self} measure() failed because unhandled {exc}')
+                continue
 
     @abstractmethod
     async def measure(self) -> None:

@@ -9,7 +9,7 @@ import dns.exception
 import dns.message
 from icmplib import async_ping
 
-from ispee.exception import TimeoutError
+from ispee.exception import PingError, TimeoutError
 
 DEFAULT_TIMEOUT_SECONDS = 5.0
 
@@ -55,4 +55,6 @@ async def dns_ping(
         raise TimeoutError(
             f"dns {dns_type} ping to {host} timed out (>{timeout_seconds}s)"
         )
+    except ConnectionRefusedError as conn_ref:
+        raise PingError(f'connection refused: {conn_ref}')
     return response.time  # type: ignore

@@ -790,6 +790,6 @@
   "timezone": "browser",
   "title": "Latency",
   "uid": "latency",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
