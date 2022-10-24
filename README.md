@@ -36,8 +36,7 @@ the performance stats for my modem (Arris S33). You can turn that off in the con
    docker compose up --detach --build --always-recreate-deps
    ```
 
-5. Head to the dashboard at <http://localhost:3000/d/internet-performance/internet-performance>
-   *(and the modem dashboard at <http://localhost:3000/d/modem-info/modem-info>)*.
+5. Head to the dashboard at <http://localhost:3000/>.
 
    The dashboard may initially show "No Data" because the first metrics are making their way to
    Grafana. Just wait and/or reload the page. "No Data" may continue to show for the Failure graphs,
