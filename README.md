@@ -54,14 +54,8 @@ the performance stats for my modem (Arris S33). You can turn that off in the con
 
 ### Grafana
 
-The Grafana dashboards should be periodically exported with `make export-grafana` and
-committed. Requires `curl` and `jq`.
+The Grafana dashboards should be periodically backed up with `make backup-dashboards` (which saves
+all the dashboards in JSON format to `grafana/dashboards`) and then committed.
 
-If a new dashboard is made, here's how to set it up for exporting:
-
-1. Click the share icon. Export tab. View JSON.
-2. Copy that JSON to `grafana/dashboards/<name>.json`.
-3. In that file, find the `uid` field. Change it to something more memorable (versus the random
-   characters that it gets by default). Ensure it's unique.
-4. In the `Makefile`, under the `export-grafana` target, add another curl export line like the
-   others have.
+The value in doing this is that if the grafana volume is somehow deleted, the work put into the
+dashboards will be restorable.

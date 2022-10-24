@@ -1,6 +1,6 @@
-src-paths := src
+src-paths := src scripts
 
-.PHONY: all check format up down export-grafana backup-metrics restore-metrics
+.PHONY: all check format up down backup-dashbaords backup-metrics restore-metrics
 
 all: format check
 
@@ -20,10 +20,8 @@ down:
 
 restart: down up
 
-export-grafana:
-	curl localhost:3000/api/dashboards/uid/latency | jq ".dashboard" > ./grafana/dashboards/latency.json
-	curl localhost:3000/api/dashboards/uid/modem | jq ".dashboard" > ./grafana/dashboards/modem.json
-	curl localhost:3000/api/dashboards/uid/ip-address | jq ".dashboard" > ./grafana/dashboards/ip-address.json
+backup-dashboards:
+	python scripts/backup_dashboards.py
 
 backup-metrics:
 	docker run \
