@@ -55,21 +55,21 @@ class MetricJob(ABC):
 
 @frozen(kw_only=True)
 class PingJob(MetricJob):
-    LABELS: ClassVar[list[str]] = ["destination", "type"]
+    LABEL_NAMES: ClassVar[list[str]] = ["destination", "type"]
     PING_DURATION_SECONDS_HISTOGRAM: ClassVar[Histogram] = Histogram(
-        "ping_duration_seconds",
-        "Histogram measuring latency with a ping",
-        LABELS,
+        name="ping_duration_seconds",
+        documentation="Histogram measuring latency with a ping",
+        labelnames=LABEL_NAMES,
     )
     PING_FAILURE_COUNTER: ClassVar[Counter] = Counter(
-        "ping_failure_total",
-        "Counter for ping failures (timeout, network error, etc)",
-        LABELS,
+        name="ping_failure_total",
+        documentation="Counter for ping failures (timeout, network error, etc)",
+        labelnames=LABEL_NAMES,
     )
     PING_COUNTER: ClassVar[Counter] = Counter(
-        "ping_total",
-        "Counter for total pings",
-        LABELS,
+        name="ping_total",
+        documentation="Counter for total pings",
+        labelnames=LABEL_NAMES,
     )
 
     FREQUENCY_SECONDS: ClassVar[float] = 15
@@ -124,17 +124,17 @@ class PingJob(MetricJob):
 @frozen(kw_only=True)
 class S33ScrapeJob(MetricJob):
 
-    LABELS: ClassVar[list[str]] = ["frequency_megahertz", "host"]
+    LABEL_NAMES: ClassVar[list[str]] = ["frequency_megahertz", "host"]
 
     CHANNEL_POWER_GAUGE: ClassVar[Gauge] = Gauge(
-        "power_dbmv",
-        "Power in decibels per millivolt",
-        LABELS,
+        name="power_dbmv",
+        documentation="Power in decibels per millivolt",
+        labelnames=LABEL_NAMES,
     )
     CHANNEL_SNR_GAUGE: ClassVar[Gauge] = Gauge(
-        "snr_db",
-        "Signal to noise ratio in decibels",
-        LABELS,
+        name="snr_db",
+        documentation="Signal to noise ratio in decibels",
+        labelnames=LABEL_NAMES,
     )
     # this is such a tragedy: the next corrected/uncorrectables metrics are really
     # counters that mostly go up, but sometimes reset to 0 after reboot (or overflow?).
@@ -149,14 +149,14 @@ class S33ScrapeJob(MetricJob):
     # instrumentation API imposes this fuckery. so, in grafana, you can still call
     # "increase()" on guages as long as you know its really a counter.
     CHANNEL_CORRECTED_GAUGE: ClassVar[Gauge] = Gauge(
-        "corrected_codewords_total",
-        "Number of corrected codewords",
-        LABELS,
+        name="corrected_codewords_total",
+        documentation="Number of corrected codewords",
+        labelnames=LABEL_NAMES,
     )
     CHANNEL_UNCORRECTABLE_GAUGE: ClassVar[Gauge] = Gauge(
-        "uncorrectable_codewords_total",
-        "Number of corrected codewords",
-        LABELS,
+        name="uncorrectable_codewords_total",
+        documentation="Number of corrected codewords",
+        labelnames=LABEL_NAMES,
     )
 
     FREQUENCY_SECONDS: ClassVar[float] = 15
