@@ -1,778 +1,778 @@
 {
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "datasource": {
-            "type": "datasource",
-            "uid": "grafana"
-          },
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "target": {
-            "limit": 100,
-            "matchAny": false,
-            "tags": [],
-            "type": "dashboard"
-          },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
           "type": "dashboard"
-        }
-      ]
-    },
-    "editable": true,
-    "fiscalYearStartMonth": 0,
-    "graphTooltip": 0,
-    "id": 3,
-    "links": [],
-    "liveNow": false,
-    "panels": [
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
         },
-        "description": "",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "fixedColor": "yellow",
-              "mode": "fixed"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "#5794F2",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "short"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 3,
-          "w": 12,
-          "x": 0,
-          "y": 0
-        },
-        "id": 7,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "textMode": "auto"
-        },
-        "pluginVersion": "9.0.7",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "sum(increase(corrected_codewords_total[$__range]))",
-            "instant": false,
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Total Corrected Codewords Over Range",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "description": "",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "fixedColor": "red",
-              "mode": "fixed"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "short"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 3,
-          "w": 12,
-          "x": 12,
-          "y": 0
-        },
-        "id": 6,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "textMode": "auto"
-        },
-        "pluginVersion": "9.0.7",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "sum(increase(uncorrectable_codewords_total[$__range]))",
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Total Uncorrectable Codewords Over Range",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "lineInterpolation": "smooth",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": [
-            {
-              "__systemRef": "hideSeriesFrom",
-              "matcher": {
-                "id": "byNames",
-                "options": {
-                  "mode": "exclude",
-                  "names": [
-                    "Sum"
-                  ],
-                  "prefix": "All except:",
-                  "readOnly": true
-                }
-              },
-              "properties": [
-                {
-                  "id": "custom.hideFrom",
-                  "value": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": true
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Sum"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "yellow",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 0,
-          "y": 3
-        },
-        "id": 13,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "sum(increase(corrected_codewords_total[$__interval]))",
-            "interval": "$minstep",
-            "legendFormat": "Sum",
-            "refId": "A"
-          }
-        ],
-        "title": "Corrected Codewords",
-        "type": "timeseries"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "lineInterpolation": "smooth",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": [
-            {
-              "__systemRef": "hideSeriesFrom",
-              "matcher": {
-                "id": "byNames",
-                "options": {
-                  "mode": "exclude",
-                  "names": [
-                    "Sum"
-                  ],
-                  "prefix": "All except:",
-                  "readOnly": true
-                }
-              },
-              "properties": [
-                {
-                  "id": "custom.hideFrom",
-                  "value": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": true
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Sum"
-              },
-              "properties": [
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "red",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 12,
-          "y": 3
-        },
-        "id": 14,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "sum(increase(uncorrectable_codewords_total[$__interval]))",
-            "interval": "$minstep",
-            "legendFormat": "Sum",
-            "refId": "A"
-          }
-        ],
-        "title": "Uncorrectable Codewords",
-        "type": "timeseries"
-      },
-      {
-        "cards": {},
-        "color": {
-          "cardColor": "#FADE2A",
-          "colorScale": "sqrt",
-          "colorScheme": "interpolateOranges",
-          "exponent": 0.5,
-          "mode": "opacity"
-        },
-        "dataFormat": "tsbuckets",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "gridPos": {
-          "h": 13,
-          "w": 12,
-          "x": 0,
-          "y": 9
-        },
-        "heatmap": {},
-        "hideZeroBuckets": false,
-        "highlightCards": true,
-        "id": 11,
-        "legend": {
-          "show": true
-        },
-        "reverseYBuckets": true,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "increase(corrected_codewords_total[$__interval])",
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Corrected Codewords by Channel",
-        "tooltip": {
-          "show": true,
-          "showHistogram": false
-        },
-        "type": "heatmap",
-        "xAxis": {
-          "show": true
-        },
-        "xBucketSize": "",
-        "yAxis": {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        "yBucketBound": "middle"
-      },
-      {
-        "cards": {},
-        "color": {
-          "cardColor": "#F2495C",
-          "colorScale": "sqrt",
-          "colorScheme": "interpolateOranges",
-          "exponent": 0.5,
-          "mode": "opacity"
-        },
-        "dataFormat": "tsbuckets",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "gridPos": {
-          "h": 13,
-          "w": 12,
-          "x": 12,
-          "y": 9
-        },
-        "heatmap": {},
-        "hideZeroBuckets": false,
-        "highlightCards": true,
-        "id": 2,
-        "legend": {
-          "show": true
-        },
-        "reverseYBuckets": true,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "increase(uncorrectable_codewords_total[$__interval])",
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Uncorrectable Codewords by Channel",
-        "tooltip": {
-          "show": true,
-          "showHistogram": false
-        },
-        "type": "heatmap",
-        "xAxis": {
-          "show": true
-        },
-        "yAxis": {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        "yBucketBound": "middle"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "continuous-RdYlGr"
-            },
-            "custom": {
-              "fillOpacity": 70,
-              "lineWidth": 0,
-              "spanNulls": false
-            },
-            "mappings": [],
-            "min": 25,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            },
-            "unit": "dB"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 15,
-          "w": 12,
-          "x": 0,
-          "y": 22
-        },
-        "id": 5,
-        "options": {
-          "alignValue": "left",
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "mergeValues": true,
-          "rowHeight": 0.9,
-          "showValue": "auto",
-          "tooltip": {
-            "mode": "none",
-            "sort": "none"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "snr_db[$__interval]",
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Signal to Noise Ratio",
-        "transformations": [],
-        "type": "state-timeline"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriauid"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "continuous-GrYlRd"
-            },
-            "custom": {
-              "fillOpacity": 70,
-              "lineWidth": 0,
-              "spanNulls": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "dB"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 15,
-          "w": 12,
-          "x": 12,
-          "y": 22
-        },
-        "id": 4,
-        "options": {
-          "alignValue": "left",
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "mergeValues": true,
-          "rowHeight": 0.9,
-          "showValue": "auto",
-          "tooltip": {
-            "mode": "none",
-            "sort": "none"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "victoriauid"
-            },
-            "exemplar": true,
-            "expr": "abs(power_dbmv[$__interval])",
-            "interval": "$minstep",
-            "legendFormat": "{{frequency_megahertz}} MHz",
-            "refId": "A"
-          }
-        ],
-        "title": "Power (Absolute Value)",
-        "type": "state-timeline"
+        "type": "dashboard"
       }
-    ],
-    "refresh": "",
-    "schemaVersion": 36,
-    "style": "dark",
-    "tags": [],
-    "templating": {
-      "list": [
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 3,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#5794F2",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.7",
+      "targets": [
         {
-          "auto": false,
-          "auto_count": 30,
-          "auto_min": "10s",
-          "current": {
-            "selected": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "sum(increase(corrected_codewords_total[$__range]))",
+          "instant": false,
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Corrected Codewords Over Range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "sum(increase(uncorrectable_codewords_total[$__range]))",
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Uncorrectable Codewords Over Range",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Sum"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 3
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "sum(increase(corrected_codewords_total[$__interval]))",
+          "interval": "$minstep",
+          "legendFormat": "Sum",
+          "refId": "A"
+        }
+      ],
+      "title": "Corrected Codewords",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Sum"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 3
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "sum(increase(uncorrectable_codewords_total[$__interval]))",
+          "interval": "$minstep",
+          "legendFormat": "Sum",
+          "refId": "A"
+        }
+      ],
+      "title": "Uncorrectable Codewords",
+      "type": "timeseries"
+    },
+    {
+      "cards": {},
+      "color": {
+        "cardColor": "#FADE2A",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateOranges",
+        "exponent": 0.5,
+        "mode": "opacity"
+      },
+      "dataFormat": "tsbuckets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 11,
+      "legend": {
+        "show": true
+      },
+      "reverseYBuckets": true,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "increase(corrected_codewords_total[$__interval])",
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Corrected Codewords by Channel",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketSize": "",
+      "yAxis": {
+        "format": "short",
+        "logBase": 1,
+        "show": true
+      },
+      "yBucketBound": "middle"
+    },
+    {
+      "cards": {},
+      "color": {
+        "cardColor": "#F2495C",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateOranges",
+        "exponent": 0.5,
+        "mode": "opacity"
+      },
+      "dataFormat": "tsbuckets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 2,
+      "legend": {
+        "show": true
+      },
+      "reverseYBuckets": true,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "increase(uncorrectable_codewords_total[$__interval])",
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Uncorrectable Codewords by Channel",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "yAxis": {
+        "format": "short",
+        "logBase": 1,
+        "show": true
+      },
+      "yBucketBound": "middle"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-RdYlGr"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "min": 25,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 5,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "snr_db[$__interval]",
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Signal to Noise Ratio",
+      "transformations": [],
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriauid"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 4,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriauid"
+          },
+          "exemplar": true,
+          "expr": "abs(power_dbmv[$__interval])",
+          "interval": "$minstep",
+          "legendFormat": "{{frequency_megahertz}} MHz",
+          "refId": "A"
+        }
+      ],
+      "title": "Power (Absolute Value)",
+      "type": "state-timeline"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "auto": false,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "current": {
+          "selected": false,
+          "text": "15s",
+          "value": "15s"
+        },
+        "description": "Sets the interval of a single graphed point. Readings in the same interval will be averaged, so lower values will be spiky and higher values will be smooth. Note that Grafana may override this if the value is too small for the time range.",
+        "hide": 0,
+        "label": "Minimum Interval",
+        "name": "minstep",
+        "options": [
+          {
+            "selected": true,
             "text": "15s",
             "value": "15s"
           },
-          "description": "Sets the interval of a single graphed point. Readings in the same interval will be averaged, so lower values will be spiky and higher values will be smooth. Note that Grafana may override this if the value is too small for the time range.",
-          "hide": 0,
-          "label": "Minimum Interval",
-          "name": "minstep",
-          "options": [
-            {
-              "selected": true,
-              "text": "15s",
-              "value": "15s"
-            },
-            {
-              "selected": false,
-              "text": "30s",
-              "value": "30s"
-            },
-            {
-              "selected": false,
-              "text": "1m",
-              "value": "1m"
-            },
-            {
-              "selected": false,
-              "text": "5m",
-              "value": "5m"
-            },
-            {
-              "selected": false,
-              "text": "15m",
-              "value": "15m"
-            },
-            {
-              "selected": false,
-              "text": "30m",
-              "value": "30m"
-            },
-            {
-              "selected": false,
-              "text": "1h",
-              "value": "1h"
-            },
-            {
-              "selected": false,
-              "text": "2h",
-              "value": "2h"
-            },
-            {
-              "selected": false,
-              "text": "6h",
-              "value": "6h"
-            },
-            {
-              "selected": false,
-              "text": "12h",
-              "value": "12h"
-            },
-            {
-              "selected": false,
-              "text": "1d",
-              "value": "1d"
-            }
-          ],
-          "query": "15s,30s,1m,5m,15m,30m,1h,2h,6h,12h,1d",
-          "queryValue": "",
-          "refresh": 2,
-          "skipUrlSync": false,
-          "type": "interval"
-        }
-      ]
-    },
-    "time": {
-      "from": "now-5m",
-      "to": "now"
-    },
-    "timepicker": {
-      "refresh_intervals": [
-        "15s",
-        "30s",
-        "1m",
-        "5m",
-        "15m",
-        "30m",
-        "1h",
-        "2h",
-        "1d"
-      ]
-    },
-    "timezone": "",
-    "title": "Modem",
-    "uid": "tXthvGsYc",
-    "version": 5,
-    "weekStart": ""
-  }
+          {
+            "selected": false,
+            "text": "30s",
+            "value": "30s"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "15m",
+            "value": "15m"
+          },
+          {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "2h",
+            "value": "2h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "12h",
+            "value": "12h"
+          },
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          }
+        ],
+        "query": "15s,30s,1m,5m,15m,30m,1h,2h,6h,12h,1d",
+        "queryValue": "",
+        "refresh": 2,
+        "skipUrlSync": false,
+        "type": "interval"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "15s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Modem",
+  "uid": "tXthvGsYc",
+  "version": 1,
+  "weekStart": ""
+}
