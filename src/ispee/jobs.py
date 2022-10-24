@@ -2,18 +2,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Awaitable, Callable, AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from functools import partial
 from typing import ClassVar
 
+import anyio
 from attrs import frozen
 from prometheus_client import Counter, Gauge, Histogram
-import anyio
 
 from ispee.console import CONSOLE
 from ispee.exception import PingError
 from ispee.ip import get_self_ip
-from ispee.ping import DNS_PING_TYPES, icmp_ping, dns_ping
+from ispee.ping import DNS_PING_TYPES, dns_ping, icmp_ping
 from ispee.s33 import S33Scraper
 
 
@@ -36,14 +36,15 @@ class MetricJob(ABC):
 
     frequency_seconds: float
 
-    async def run(self) -> None:
+    async def loop(self, cancel_scope: anyio.CancelScope) -> None:
+        """Call measure() every frequency_seconds in a loop."""
         CONSOLE.log(f"Starting {self} job on a {self.frequency_seconds} frequency")
         async for _ in periodic(self.frequency_seconds):
             # if we haven't coded specifically for this case, log it and try again?
             try:
                 await self.measure()
             except Exception as exc:
-                CONSOLE.log(f'{self} measure() failed because unhandled {exc}')
+                CONSOLE.log(f"{self} measure() failed because unhandled {exc}")
                 continue
 
     @abstractmethod

@@ -6,7 +6,6 @@ import dns.asyncquery
 import dns.asyncresolver
 import dns.exception
 import dns.message
-from dns.resolver import LifetimeTimeout
 
 DEFAULT_TIMEOUT_SECONDS = 5.0
 
@@ -24,8 +23,8 @@ async def get_self_ip(
         answers = await dns.asyncresolver.resolve(
             host, "A", lifetime=DEFAULT_TIMEOUT_SECONDS
         )
-    except LifetimeTimeout as lifetime_timeout:
-        raise TimeoutError("timed out brah") from lifetime_timeout
+    except dns.exception.Timeout as timeout:
+        raise TimeoutError("timed out brah") from timeout
     host_ip = next(iter(answers)).address  # get first record's address
 
     query = dns.message.make_query(name, record_type)
@@ -34,7 +33,7 @@ async def get_self_ip(
     except OSError as os_error:
         raise TimeoutError(str(os_error)) from os_error
     my_ip = (
-        [record for rrset in response.answer for record in rrset][0]
+        [record for rrset in response.answer for record in rrset][0]  # type: ignore
         .strings[0]
         .decode("utf-8")
     )

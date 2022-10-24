@@ -56,5 +56,5 @@ async def dns_ping(
             f"dns {dns_type} ping to {host} timed out (>{timeout_seconds}s)"
         )
     except ConnectionRefusedError as conn_ref:
-        raise PingError(f'connection refused: {conn_ref}')
+        raise PingError(f"connection refused: {conn_ref}")
     return response.time  # type: ignore
