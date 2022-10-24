@@ -72,7 +72,11 @@ def main(port: int, config_path: Path) -> None:
 
     async def start_prometheus_server(cancel_scope: CancelScope) -> None:
         config = uvicorn.Config(
-            prometheus_client.make_asgi_app, port=port, log_level="info", factory=True
+            prometheus_client.make_asgi_app,
+            port=port,
+            log_level="info",
+            factory=True,
+            host="0.0.0.0",
         )
         server = uvicorn.Server(config)
         CONSOLE.log(f"Prometheus metrics exposed on HTTP server with port {port}.")

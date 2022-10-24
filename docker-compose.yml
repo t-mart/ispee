@@ -10,7 +10,7 @@ services:
     image: ispee
     ports:
       - target: 8000
-        published: 8000
+        published: 8100
         protocol: tcp
         mode: host
     volumes:
