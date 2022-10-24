@@ -8,7 +8,7 @@ from typing import ClassVar
 
 import anyio
 from attrs import frozen
-from prometheus_client import Counter, Gauge, Histogram
+from prometheus_client import Counter, Gauge, Histogram, Info
 
 from ispee.console import CONSOLE
 from ispee.exception import PingError
@@ -140,11 +140,9 @@ class S33ScrapeJob(MetricJob):
     # counters that mostly go up, but sometimes reset to 0 after reboot (or overflow?).
     # but, the interface for Counter objects only let you increment, not set (as on
     # Gauge objects). But, we really need set because we're just scraping a modem info
-    # page that only reports total counts at the current moment.
+    # page that only reports total counts at the current moment
     #
-    # ideally, we'd instrument the modem to expose prometheus metrics so it could
-    # increment a counter properly, but we don't have access to that code (nor would we
-    # want to even if we did... it's probably low level C firmware, etc.)
+    # the problem is we can't "instrument" the modem: we're just a 3rd party scraper
     #
     # so instead, we just treat these counts as gauges. yikes. however, i think under
     # the hood, Counter and Gauge metrics are represented the same..., it's just the
@@ -217,11 +215,8 @@ class S33ScrapeJob(MetricJob):
 
 @frozen(kw_only=True)
 class IPJob(MetricJob):
-    LABELS: ClassVar[list[str]] = ["ip"]
-    IP_ADDRESS_LOOKUP_COUNTER: ClassVar[Counter] = Counter(
-        "ip_address_lookup_total",
-        "Number of ip address lookups",
-        LABELS,
+    INFO: ClassVar[Info] = Info(
+        name="ip", documentation="Records current own IP address"
     )
 
     FREQUENCY_SECONDS: ClassVar[float] = 60
@@ -231,7 +226,6 @@ class IPJob(MetricJob):
         return cls(frequency_seconds=cls.FREQUENCY_SECONDS)
 
     async def measure(self) -> None:
-        ip = await get_self_ip()
-        labels = {"ip": ip}
-        self.IP_ADDRESS_LOOKUP_COUNTER.labels(**labels).inc()
-        CONSOLE.log(f"{self.IP_ADDRESS_LOOKUP_COUNTER._name}{labels}: incremented ")
+        labels = {"ip": await get_self_ip()}
+        self.INFO.info(labels)
+        CONSOLE.log(f"ip{labels}: incremented ")
