@@ -216,7 +216,7 @@ class S33ScrapeJob(MetricJob):
 @frozen(kw_only=True)
 class IPJob(MetricJob):
     INFO: ClassVar[Info] = Info(
-        name="ip", documentation="Records current own IP address"
+        name="host", documentation="Records information about the host"
     )
 
     FREQUENCY_SECONDS: ClassVar[float] = 60
@@ -226,6 +226,6 @@ class IPJob(MetricJob):
         return cls(frequency_seconds=cls.FREQUENCY_SECONDS)
 
     async def measure(self) -> None:
-        labels = {"ip": await get_self_ip()}
+        labels = {"ip_address": await get_self_ip()}
         self.INFO.info(labels)
-        CONSOLE.log(f"ip{labels}: incremented ")
+        CONSOLE.log(f"host_info{labels}: 1.0")
