@@ -45,7 +45,7 @@ pings:
   - name: "Suddenlink"
     host: "24.48.160.2"
     types:
-      - icmp
+      # - icmp
       - dns-udp
       - dns-tcp
 
@@ -53,6 +53,6 @@ pings:
   - name: "Suddenlink"
     host: "24.48.160.3"
     types:
-      - icmp
+      # - icmp
       - dns-udp
       - dns-tcp
