@@ -91,6 +91,7 @@
         "y": 0
       },
       "id": 4,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -108,7 +109,7 @@
             "type": "prometheus",
             "uid": "victoriauid"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "expr": "host_info",
           "format": "time_series",
           "interval": "",
@@ -214,6 +215,6 @@
   "timezone": "",
   "title": "IP Address",
   "uid": "APoZJA77C",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
