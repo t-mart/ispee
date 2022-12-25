@@ -551,8 +551,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -622,8 +621,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -669,7 +667,7 @@
       "type": "state-timeline"
     }
   ],
-  "refresh": "",
+  "refresh": "15s",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
@@ -690,7 +688,7 @@
         "name": "minstep",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "15s",
             "value": "15s"
           },
@@ -700,7 +698,7 @@
             "value": "30s"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "1m",
             "value": "1m"
           },
@@ -754,7 +752,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -773,6 +771,6 @@
   "timezone": "",
   "title": "Modem",
   "uid": "tXthvGsYc",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }

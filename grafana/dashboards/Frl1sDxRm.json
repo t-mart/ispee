@@ -659,7 +659,7 @@
         "name": "type",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "udp-dns-ping",
             "value": "udp-dns-ping"
           },
@@ -669,7 +669,7 @@
             "value": "tcp-dns-ping"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "icmp-ping",
             "value": "icmp-ping"
           }
@@ -758,7 +758,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -790,6 +790,6 @@
   "timezone": "browser",
   "title": "Latency",
   "uid": "Frl1sDxRm",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }

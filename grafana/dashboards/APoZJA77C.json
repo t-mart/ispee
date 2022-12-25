@@ -179,9 +179,12 @@
             "uid": "victoriauid"
           },
           "editorMode": "code",
+          "exemplar": false,
           "expr": "host_info{}",
+          "format": "table",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -215,6 +218,6 @@
   "timezone": "",
   "title": "IP Address",
   "uid": "APoZJA77C",
-  "version": 5,
+  "version": 7,
   "weekStart": ""
 }

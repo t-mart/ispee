@@ -53,8 +53,17 @@ the performance stats for my modem (Arris S33). You can turn that off in the con
 
 ### Grafana
 
-The Grafana dashboards should be periodically backed up with `make backup-dashboards` (which saves
-all the dashboards in JSON format to `grafana/dashboards`) and then committed.
+The Grafana dashboards should be periodically backed up. Here's the process:
+
+1. Ensure the project's virtualenv is activated.
+2. Run:
+
+   ```bash
+   make backup-dashboards
+   ```
+
+   (This saves all the dashboards in JSON format to `grafana/dashboards`)
+3. Commit the changes to version control, and push them.
 
 The value in doing this is that if the grafana volume is somehow deleted, the work put into the
 dashboards will be restorable.
